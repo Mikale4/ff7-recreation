@@ -1,0 +1,20 @@
+# The public copy (github.com/Mikale4/ff7-recreation, played at mikale4.github.io/ff7-recreation) holds only this
+# recreation's own work: the code, the 3D models and the menu portraits rendered from them. Nothing from the original
+# game goes in: its music (bgm/), sound effects (sfx/), movies (assets/movies/) and effect textures (assets/fx/) stay on
+# this PC only, as do the reference rips (references/), the saves (saves/) and the working files (docs/, previews/).
+# An allow-list: everything is left out unless named below.
+/*
+!/.gitignore
+!/.nojekyll
+!/index.html
+!/README.md
+!/css/
+!/js/
+!/tools/
+!/assets/
+/assets/*
+!/assets/portraits/
+/assets/portraits/ps1_*
+/assets/portraits/_*
+__pycache__/
+*.pyc

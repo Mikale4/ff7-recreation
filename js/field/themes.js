@@ -1,0 +1,63 @@
+// Visual themes for field maps: colours for floors/walls, wall height, lighting, fog, sky.
+// A map picks one with `theme: 'reactor'`; individual keys can be overridden with `look: {...}`.
+(function () {
+  const TH = FF7.field.themes = {};
+  const def = (id, o) => { TH[id] = Object.assign({
+    floor: ['#6a6a6a', '#626262'], floor2: ['#7a7064', '#72685c'], floor3: ['#5a4a3a', '#524232'],
+    wall: '#6a6a78', wallTop: '#18181c', wallH: 2.2, trim: '#40404a',
+    sky: ['#101018', '#202030'], fog: null,
+    ambient: [0.42, 0.42, 0.46], light: [0.72, 0.7, 0.66], lightDir: [-0.35, -0.85, -0.4],
+    water: '#2a5a8a', mako: '#40f080', grass: ['#4a7a30', '#44722c'], dirt: ['#6a5238', '#624a32'],
+    sand: ['#d8c088', '#d0b880'], snow: ['#e8ecf4', '#dde2ec'], metal: ['#5a6068', '#525860'],
+    carpet: ['#7a2020', '#722020'], wood: ['#8a6038', '#825830'], tile: ['#b8b4ac', '#aeaaa2'],
+    indoor: false,
+  }, o); };
+  // ---- Midgar
+  def('reactor', { doorLeaf: '#5e6872', doorFrame: '#2a3038', bldgWin: false, floor: ['#4a5058', '#444a52'], floor2: ['#3a4048', '#363c44'], wall: '#56606a', trim: '#303840', wallH: 2.6, sky: ['#040608', '#0a1a14'], ambient: [0.3, 0.36, 0.34], light: [0.55, 0.7, 0.6], mako: '#40ff90', fog: { color: [0.02, 0.06, 0.05], near: 6, far: 18 } });
+  def('station', { doorLeaf: '#5e6872', doorFrame: '#2a3038', floor: ['#5a5a5e', '#545458'], floor2: ['#4a4038', '#443a32'], wall: '#606878', wallH: 2.4, sky: ['#05060a', '#141820'], ambient: [0.34, 0.34, 0.4], light: [0.6, 0.6, 0.66], fog: { color: [0.03, 0.03, 0.05], near: 7, far: 20 } });
+  def('midgar', { floor: ['#585a60', '#52545a'], floor2: ['#6a6660', '#646058'], wall: '#5a6272', wallH: 2.8, sky: ['#05060c', '#18202c'], ambient: [0.32, 0.34, 0.42], light: [0.62, 0.62, 0.7], fog: { color: [0.04, 0.05, 0.08], near: 8, far: 22 } });
+  def('slums', { floor: ['#5a4a3a', '#544436'], floor2: ['#6a5a48', '#625242'], floor3: ['#4a4038', '#443a32'], wall: '#6a5a4a', trim: '#3a3028', wallH: 2.2, sky: ['#0a0806', '#24201a'], ambient: [0.36, 0.33, 0.3], light: [0.7, 0.62, 0.5], fog: { color: [0.08, 0.07, 0.05], near: 8, far: 22 } });
+  def('church', { floor: ['#6a5a48', '#625242'], floor2: ['#8a7a60', '#827258'], wall: '#8a7a68', trim: '#4a3a2a', wallH: 3.0, sky: ['#1a1810', '#383020'], ambient: [0.4, 0.38, 0.34], light: [0.85, 0.8, 0.6], indoor: true, fog: { color: [0.12, 0.1, 0.07], near: 8, far: 20 } });
+  def('bar', { floor: ['#7a5a38', '#725232'], floor2: ['#8a6a44', '#82623e'], wall: '#8a6848', trim: '#4a3020', wallH: 2.4, sky: ['#000000', '#000000'], ambient: [0.45, 0.4, 0.34], light: [0.8, 0.7, 0.55], indoor: true });
+  def('house', { floor: ['#8a6a44', '#82623e'], floor2: ['#9a7a54', '#92724c'], wall: '#b0a080', trim: '#6a5030', wallH: 2.4, sky: ['#000000', '#000000'], ambient: [0.46, 0.42, 0.38], light: [0.8, 0.74, 0.62], indoor: true });
+  def('wallmarket', { floor: ['#5a4838', '#544232'], floor2: ['#7a3a38', '#723430'], wall: '#7a5040', trim: '#402820', wallH: 2.4, sky: ['#0a0406', '#301418'], ambient: [0.42, 0.34, 0.34], light: [0.85, 0.62, 0.55], fog: { color: [0.1, 0.04, 0.05], near: 8, far: 22 } });
+  def('mansion', { floor: ['#7a2828', '#722222'], floor2: ['#8a6a44', '#82623e'], wall: '#9a8060', trim: '#5a3a20', wallH: 2.8, sky: ['#000000', '#000000'], ambient: [0.44, 0.38, 0.34], light: [0.82, 0.7, 0.55], indoor: true });
+  def('sewer', { floor: ['#4a5040', '#444a3a'], floor2: ['#3a4038', '#363c34'], wall: '#5a6050', trim: '#2a3028', wallH: 2.4, water: '#3a5a30', sky: ['#020402', '#0a100a'], ambient: [0.28, 0.34, 0.26], light: [0.5, 0.6, 0.45], fog: { color: [0.03, 0.05, 0.03], near: 5, far: 15 } });
+  def('graveyard', { floor: ['#4a4038', '#443a32'], floor2: ['#3a3a3e', '#343438'], wall: '#5a5a60', wallH: 2.6, sky: ['#040406', '#101218'], ambient: [0.28, 0.28, 0.34], light: [0.5, 0.52, 0.62], fog: { color: [0.03, 0.03, 0.05], near: 6, far: 18 } });
+  def('shinra', { doorLeaf: '#5e6872', doorFrame: '#2a3038', floor: ['#9a9aa0', '#94949a'], floor2: ['#7a8490', '#747e8a'], floor3: ['#303038', '#2a2a32'], wall: '#8a9aa8', trim: '#3a4450', wallH: 2.8, sky: ['#05080c', '#101820'], ambient: [0.48, 0.5, 0.54], light: [0.72, 0.74, 0.8], indoor: true });
+  def('lab', { doorLeaf: '#5e6872', doorFrame: '#2a3038', floor: ['#6a7a80', '#64747a'], floor2: ['#4a5a60', '#44545a'], wall: '#7a8a90', trim: '#304048', wallH: 2.8, mako: '#40ff90', sky: ['#02080a', '#0a1a1a'], ambient: [0.36, 0.44, 0.44], light: [0.6, 0.76, 0.74], indoor: true });
+  def('highway', { floor: ['#4a4a50', '#46464c'], floor2: ['#8a8a40', '#84843a'], wall: '#5a5a66', wallH: 1.2, sky: ['#02030a', '#1a2440'], ambient: [0.34, 0.34, 0.42], light: [0.6, 0.6, 0.72], fog: { color: [0.05, 0.07, 0.14], near: 10, far: 28 } });
+  // ---- outdoors
+  def('grass', { floor: ['#4a7a30', '#44722c'], floor2: ['#7a6a48', '#726242'], wall: '#6a6a58', wallH: 1.8, sky: ['#5a8ac8', '#b8d0e8'], ambient: [0.5, 0.52, 0.5], light: [0.9, 0.86, 0.76], fog: { color: [0.6, 0.72, 0.85], near: 14, far: 34 } });
+  def('town', { floor: ['#8a7a60', '#827258'], floor2: ['#5a7a38', '#547232'], floor3: ['#a09078', '#988870'], wall: '#b0a080', trim: '#6a5030', wallH: 2.4, sky: ['#5a8ac8', '#c8d8e8'], ambient: [0.52, 0.52, 0.5], light: [0.9, 0.85, 0.74], fog: { color: [0.6, 0.7, 0.82], near: 14, far: 34 } });
+  def('night_town', { floor: ['#5a5048', '#544a42'], floor2: ['#3a5030', '#344a2a'], wall: '#7a6a58', trim: '#4a3a28', wallH: 2.4, sky: ['#040814', '#101c34'], ambient: [0.28, 0.3, 0.4], light: [0.5, 0.52, 0.7], fog: { color: [0.04, 0.06, 0.12], near: 10, far: 26 } });
+  def('forest', { floor: ['#3a5a28', '#365424'], floor2: ['#5a4a30', '#54442a'], wall: '#3a4a28', wallH: 2.4, sky: ['#1a3018', '#3a5a38'], ambient: [0.38, 0.44, 0.36], light: [0.7, 0.78, 0.6], fog: { color: [0.14, 0.22, 0.14], near: 9, far: 24 } });
+  def('jungle', { floor: ['#3a5020', '#344a1c'], floor2: ['#5a4428', '#543e22'], wall: '#304a20', wallH: 2.6, sky: ['#1a2a10', '#4a6a30'], ambient: [0.4, 0.46, 0.34], light: [0.8, 0.82, 0.6], fog: { color: [0.2, 0.28, 0.14], near: 9, far: 24 } });
+  def('cave', { floor: ['#4a4038', '#443a32'], floor2: ['#3a3430', '#342e2a'], wall: '#5a4a40', trim: '#2a2018', wallH: 2.6, sky: ['#020202', '#080604'], ambient: [0.3, 0.28, 0.26], light: [0.55, 0.5, 0.44], fog: { color: [0.02, 0.02, 0.02], near: 5, far: 15 } });
+  def('mine', { floor: ['#5a5048', '#544a42'], floor2: ['#4a6a70', '#44646a'], wall: '#5a6068', trim: '#2a3038', wallH: 2.6, mako: '#60f0c0', sky: ['#020406', '#060c10'], ambient: [0.3, 0.34, 0.38], light: [0.5, 0.62, 0.7], fog: { color: [0.02, 0.04, 0.05], near: 5, far: 15 } });
+  def('desert', { floor: ['#c8a870', '#c0a068'], floor2: ['#a88858', '#a08050'], wall: '#a0784a', wallH: 2.2, sky: ['#6a98d0', '#e8d8b0'], ambient: [0.56, 0.52, 0.46], light: [0.95, 0.86, 0.7], fog: { color: [0.85, 0.78, 0.62], near: 12, far: 30 } });
+  def('beach', { floor: ['#e0c890', '#d8c088'], floor2: ['#9a8a70', '#928268'], wall: '#c0a878', wallH: 2.0, sky: ['#3a88d8', '#b8e0f8'], ambient: [0.56, 0.56, 0.54], light: [0.95, 0.9, 0.78], water: '#2a78b8', fog: { color: [0.62, 0.8, 0.95], near: 14, far: 34 } });
+  def('canyon', { floor: ['#b07048', '#a86a42'], floor2: ['#8a5a38', '#825232'], wall: '#a0603a', trim: '#603018', wallH: 3.0, sky: ['#e08850', '#f8d8a0'], ambient: [0.52, 0.44, 0.38], light: [0.95, 0.78, 0.6], fog: { color: [0.8, 0.55, 0.38], near: 12, far: 30 } });
+  def('mountain', { floor: ['#7a7060', '#726858'], floor2: ['#5a6a40', '#54643a'], wall: '#6a6050', wallH: 2.8, sky: ['#6a8ab8', '#c8d0d8'], ambient: [0.46, 0.46, 0.46], light: [0.82, 0.8, 0.74], fog: { color: [0.62, 0.66, 0.72], near: 10, far: 26 } });
+  def('snow', { floor: ['#e8ecf4', '#dde2ec'], floor2: ['#b8c0cc', '#b0b8c4'], wall: '#c8d0dc', trim: '#8a94a4', wallH: 2.4, sky: ['#8aa0c0', '#dce4ee'], ambient: [0.6, 0.62, 0.68], light: [0.8, 0.82, 0.9], fog: { color: [0.82, 0.86, 0.92], near: 8, far: 24 } });
+  def('ice', { floor: ['#a8c8e0', '#a0c0d8'], floor2: ['#d8e8f4', '#d0e0ec'], wall: '#80a8d0', trim: '#4a70a0', wallH: 2.8, sky: ['#203858', '#6a90b8'], ambient: [0.5, 0.56, 0.66], light: [0.7, 0.8, 0.95], fog: { color: [0.4, 0.55, 0.72], near: 8, far: 22 } });
+  def('temple', { floor: ['#8a8060', '#827858'], floor2: ['#6a7048', '#646a42'], wall: '#9a9070', trim: '#4a4830', wallH: 3.0, sky: ['#1a2010', '#404830'], ambient: [0.42, 0.44, 0.36], light: [0.8, 0.8, 0.6], fog: { color: [0.14, 0.16, 0.1], near: 8, far: 22 } });
+  def('city_ancients', { floor: ['#a0b0c0', '#98a8b8'], floor2: ['#c0c8d0', '#b8c0c8'], wall: '#b8c4d0', trim: '#6a7a8a', wallH: 3.0, sky: ['#203050', '#6a88b0'], ambient: [0.46, 0.5, 0.58], light: [0.72, 0.78, 0.9], water: '#4a88c0', fog: { color: [0.25, 0.35, 0.5], near: 9, far: 24 } });
+  def('crater', { floor: ['#4a4a58', '#444452'], floor2: ['#5a5068', '#544a62'], wall: '#5a5a6a', trim: '#2a2a38', wallH: 3.2, mako: '#60ffb0', sky: ['#04040a', '#141424'], ambient: [0.32, 0.32, 0.4], light: [0.6, 0.62, 0.8], fog: { color: [0.05, 0.05, 0.1], near: 7, far: 20 } });
+  def('lifestream', { floor: ['#2a6a58', '#286452'], floor2: ['#3a8a70', '#36846a'], wall: '#1a5040', wallH: 2.0, mako: '#80ffc0', sky: ['#021a12', '#0a4a30'], ambient: [0.36, 0.56, 0.46], light: [0.5, 0.9, 0.7], fog: { color: [0.05, 0.25, 0.16], near: 6, far: 18 } });
+  // ---- towns & special
+  def('junon', { doorLeaf: '#5e6872', doorFrame: '#2a3038', floor: ['#6a7078', '#646a72'], floor2: ['#8a8a88', '#848482'], wall: '#707888', trim: '#3a404a', wallH: 2.8, sky: ['#5a88c0', '#c8d8e8'], ambient: [0.48, 0.5, 0.54], light: [0.85, 0.84, 0.82], fog: { color: [0.6, 0.7, 0.82], near: 12, far: 30 } });
+  def('ship', { doorLeaf: '#5e6872', doorFrame: '#2a3038', floor: ['#6a5a48', '#625242'], floor2: ['#707880', '#6a727a'], wall: '#6a7680', trim: '#3a444a', wallH: 2.2, sky: ['#3a78c0', '#a8c8e8'], ambient: [0.48, 0.5, 0.52], light: [0.85, 0.84, 0.8], water: '#1a5898', fog: { color: [0.5, 0.65, 0.82], near: 12, far: 30 } });
+  def('goldsaucer', { floor: ['#9a3a8a', '#923484'], floor2: ['#e0c040', '#d8b83a'], floor3: ['#3a4aa0', '#34449a'], wall: '#c060b0', trim: '#e0c040', wallH: 2.6, sky: ['#08041a', '#3a1860'], ambient: [0.52, 0.44, 0.56], light: [0.9, 0.8, 0.9], fog: { color: [0.14, 0.06, 0.2], near: 10, far: 26 } });
+  def('wutai', { floor: ['#7a7060', '#726858'], floor2: ['#9a5030', '#924a2a'], wall: '#b04030', trim: '#402018', wallH: 2.4, sky: ['#6a98d0', '#e0e8f0'], ambient: [0.52, 0.5, 0.48], light: [0.9, 0.85, 0.75], fog: { color: [0.62, 0.72, 0.84], near: 12, far: 30 } });
+  def('rocket', { doorLeaf: '#5e6872', doorFrame: '#2a3038', floor: ['#7a6a58', '#726252'], floor2: ['#6a6a70', '#64646a'], wall: '#8a8078', trim: '#4a4038', wallH: 2.4, sky: ['#6a98d0', '#d8e0e8'], ambient: [0.5, 0.5, 0.48], light: [0.88, 0.84, 0.76], fog: { color: [0.62, 0.72, 0.84], near: 12, far: 30 } });
+  def('nibelheim', { floor: ['#7a7058', '#726850'], floor2: ['#5a6a3a', '#546434'], wall: '#9a8870', trim: '#5a4830', wallH: 2.4, sky: ['#4a6a98', '#a8b8c8'], ambient: [0.48, 0.48, 0.48], light: [0.82, 0.8, 0.74], fog: { color: [0.55, 0.6, 0.66], near: 12, far: 28 } });
+  def('fire', { floor: ['#5a3a28', '#543422'], floor2: ['#3a2a20', '#34241a'], wall: '#6a4030', wallH: 2.4, sky: ['#300800', '#a03010'], ambient: [0.6, 0.36, 0.24], light: [1.0, 0.6, 0.3], fog: { color: [0.5, 0.15, 0.05], near: 8, far: 22 } });
+  def('cosmo', { floor: ['#b07850', '#a8724a'], floor2: ['#8a5a38', '#825432'], wall: '#9a6040', trim: '#5a3018', wallH: 2.6, sky: ['#d07040', '#f0c890'], ambient: [0.52, 0.44, 0.38], light: [0.95, 0.76, 0.58], fog: { color: [0.75, 0.5, 0.35], near: 12, far: 28 } });
+  def('mideel', { floor: ['#6a8a48', '#648442'], floor2: ['#8a7a58', '#827252'], wall: '#9a8a68', trim: '#5a4a30', wallH: 2.2, sky: ['#5a98d8', '#c0e0f0'], ambient: [0.52, 0.54, 0.5], light: [0.9, 0.88, 0.76], water: '#3a98b8', fog: { color: [0.6, 0.78, 0.9], near: 12, far: 30 } });
+  def('space', { doorLeaf: '#5e6872', doorFrame: '#2a3038', floor: ['#5a5a60', '#54545a'], floor2: ['#3a3a40', '#34343a'], wall: '#6a6a74', wallH: 2.4, sky: ['#000000', '#020208'], ambient: [0.38, 0.38, 0.42], light: [0.8, 0.8, 0.85], indoor: true });
+  def('underwater', { doorLeaf: '#5e6872', doorFrame: '#2a3038', floor: ['#3a5058', '#344a52'], floor2: ['#4a6068', '#445a62'], wall: '#4a5a68', trim: '#203038', wallH: 2.6, sky: ['#021018', '#0a2a3a'], ambient: [0.3, 0.4, 0.46], light: [0.5, 0.66, 0.76], fog: { color: [0.02, 0.1, 0.16], near: 6, far: 18 } });
+  def('black', { floor: ['#303030', '#2a2a2a'], wall: '#404040', sky: ['#000000', '#000000'], ambient: [0.4, 0.4, 0.4], light: [0.7, 0.7, 0.7] });
+
+  FF7.field.theme = (id) => TH[id] || TH.midgar;
+})();

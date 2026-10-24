@@ -1,0 +1,16 @@
+html, body {
+  margin: 0; padding: 0; height: 100%;
+  background: #000; overflow: hidden;
+}
+#wrap {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+#screen {
+  display: block; background: #000; outline: none;
+  image-rendering: pixelated;
+}
+#boot {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  color: #ccc; font: 16px Tahoma, Verdana, sans-serif; pointer-events: none;
+}

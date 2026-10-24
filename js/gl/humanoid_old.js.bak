@@ -1,0 +1,574 @@
+// FF7-style low-poly character models built from appearance specs.
+//   FF7.chars3d.build(appearance, { style: 'field' | 'battle' }) -> FF7.Model
+// Appearance = preset id (FF7.chars3d.PRESETS) or object { base:'man', top:'#..', ... }.
+// Model faces +z, stands on y = 0, height ~1 (field) — scale it in the scene.
+(function () {
+  const U = FF7.util, MB = FF7.MeshBuilder, M4 = FF7.M4;
+  const C3 = FF7.chars3d = {};
+
+  // ------------------------------------------------------------------ presets
+  const P = C3.PRESETS = {
+    cloud: { skin: '#f0c8a0', hair: '#f2d24a', hairStyle: 'spiky', eyes: '#3a8ad8', top: '#4a3c80', sleeve: 'skin', top2: '#8a8a98', bottom: '#3a3068', boots: '#7a4a22', belt: '#6a4020', gloves: '#5a3a20', extras: ['pauldronL', 'busterback', 'belt', 'harness'], weapon: 'buster' },
+    barret: { skin: '#6a4028', hair: '#1c1c1c', hairStyle: 'buzz', eyes: '#302018', top: '#5a4e30', top2: '#e8e8e8', sleeve: 'skin', bottom: '#4a5a30', boots: '#4a3020', belt: '#3a2a18', gloves: '#3a2a18', build: 'big', extras: ['gunarmR', 'vest', 'beard', 'belt', 'wristband'], weapon: 'gunarm' },
+    tifa: { skin: '#f4d0b0', hair: '#2a1a18', hairStyle: 'long', eyes: '#8a3020', top: '#f4f4f4', sleeve: 'skin', bottom: '#1c1c20', boots: '#8a2a20', gloves: '#202020', legs: 'skin', skirt: 'short', extras: ['suspenders'], weapon: 'fist', female: true },
+    aeris: { skin: '#f4d0b0', hair: '#8a5020', hairStyle: 'braid', eyes: '#40a060', top: '#f0a0b8', sleeve: '#c02828', jacket: '#c02828', bottom: '#f0a0b8', boots: '#6a4020', skirt: 'long', extras: ['bow', 'bangles'], weapon: 'staff', female: true },
+    redxiii: { rig: 'redxiii', c1: '#d04a20', c2: '#f08840', c3: '#f0e060' },
+    yuffie: { skin: '#f4d0b0', hair: '#1c1c28', hairStyle: 'short', eyes: '#402010', top: '#3a9a58', sleeve: 'skin', top2: '#e0e0e0', bottom: '#c8b078', legs: 'skin', boots: '#e0a040', extras: ['headband', 'shurikenback', 'armguard'], weapon: 'shuriken', female: true, build: 'slim' },
+    caitsith: { rig: 'caitsith', c1: '#202020', c2: '#f0f0f0', c3: '#c02020' },
+    vincent: { skin: '#e8d4c4', hair: '#141418', hairStyle: 'longmessy', eyes: '#c02020', top: '#202028', sleeve: '#202028', bottom: '#202028', boots: '#a08030', gloves: '#302830', extras: ['cape', 'redband', 'clawL'], weapon: 'gun' },
+    cid: { skin: '#f0c8a0', hair: '#e0c050', hairStyle: 'short', eyes: '#3a7ad0', top: '#f0f0f0', sleeve: '#2a4ea0', jacket: '#2a4ea0', bottom: '#50603a', boots: '#402818', belt: '#402818', gloves: '#3a2a1a', extras: ['goggles', 'spearback', 'belt'], weapon: 'spear' },
+    sephiroth: { skin: '#f0dcc8', hair: '#e4e4ec', hairStyle: 'longstraight', eyes: '#40d090', top: '#1c1c24', sleeve: '#1c1c24', bottom: '#1c1c24', boots: '#1c1c24', gloves: '#1c1c24', extras: ['coat', 'pauldronL', 'pauldronR', 'harness'], weapon: 'masamune', build: 'tall' },
+    zack: { skin: '#f0c8a0', hair: '#141418', hairStyle: 'spikyback', eyes: '#3a8ad8', top: '#2a3060', sleeve: 'skin', top2: '#8a8a98', bottom: '#2a3060', boots: '#402818', belt: '#402818', gloves: '#302018', extras: ['pauldronL', 'pauldronR', 'busterback', 'belt', 'harness'], weapon: 'buster' },
+    young_cloud: { skin: '#f0c8a0', hair: '#3a5a8a', hairStyle: 'helmet', top: '#3a5a8a', sleeve: '#3a5a8a', bottom: '#3a5a8a', boots: '#2a2a30', belt: '#2a2a30', gloves: '#2a2a30', extras: ['mask', 'belt', 'vestArmor'] },
+    // supporting cast
+    soldier: { skin: '#f0c8a0', hair: '#3a5a8a', hairStyle: 'helmet', top: '#3a5a8a', sleeve: '#3a5a8a', bottom: '#3a5a8a', boots: '#2a2a30', belt: '#2a2a30', gloves: '#2a2a30', extras: ['mask', 'belt', 'vestArmor'], weapon: 'rifle' },
+    mp: { skin: '#f0c8a0', hair: '#2a3a6a', hairStyle: 'cap', top: '#2a3a6a', sleeve: '#2a3a6a', bottom: '#2a3a6a', boots: '#1a1a1a', belt: '#1a1a1a', gloves: '#1a1a1a', extras: ['belt', 'mask'], weapon: 'rifle' },
+    soldier_red: { skin: '#f0c8a0', hair: '#8a2a2a', hairStyle: 'helmet', top: '#8a2a2a', sleeve: '#8a2a2a', bottom: '#8a2a2a', boots: '#2a2a30', belt: '#2a2a30', gloves: '#2a2a30', extras: ['mask', 'belt', 'vestArmor'] },
+    soldier1st: { skin: '#f0c8a0', hair: '#141418', hairStyle: 'spikyback', top: '#2a3060', sleeve: 'skin', bottom: '#2a3060', boots: '#402818', belt: '#402818', gloves: '#302018', extras: ['pauldronL', 'pauldronR', 'belt'] },
+    turk: { skin: '#f0c8a0', hair: '#202020', hairStyle: 'slick', top: '#1e2a58', sleeve: '#1e2a58', top2: '#f0f0f0', bottom: '#1e2a58', boots: '#101010', gloves: '#101010', extras: ['suit', 'tie'] },
+    reno: { skin: '#f0c8a0', hair: '#d02810', hairStyle: 'renotail', eyes: '#30a0a0', top: '#f0f0f0', sleeve: '#1e2a58', jacket: '#1e2a58', bottom: '#1e2a58', boots: '#101010', extras: ['goggles', 'openshirt'], weapon: 'rod' },
+    rude: { skin: '#7a4a30', hair: '#7a4a30', hairStyle: 'bald', top: '#f0f0f0', sleeve: '#1e2a58', jacket: '#1e2a58', bottom: '#1e2a58', boots: '#101010', gloves: '#101010', build: 'big', extras: ['shades', 'tie', 'suit'] },
+    tseng: { skin: '#f0d0b0', hair: '#141418', hairStyle: 'longstraight', top: '#1e2a58', sleeve: '#1e2a58', top2: '#f0f0f0', bottom: '#1e2a58', boots: '#101010', extras: ['suit', 'tie'] },
+    elena: { skin: '#f4d0b0', hair: '#e8c060', hairStyle: 'bob', top: '#1e2a58', sleeve: '#1e2a58', top2: '#f0f0f0', bottom: '#1e2a58', boots: '#101010', extras: ['suit'], female: true },
+    president: { skin: '#f0c8a0', hair: '#d8b050', hairStyle: 'slick', top: '#8a2828', sleeve: '#8a2828', top2: '#f0f0f0', bottom: '#8a2828', boots: '#101010', build: 'fat', extras: ['mustache', 'suit', 'tie'] },
+    rufus: { skin: '#f0d0b0', hair: '#e8c860', hairStyle: 'short', top: '#ecece4', sleeve: '#ecece4', top2: '#303038', bottom: '#ecece4', boots: '#d8d8d0', extras: ['coat'], weapon: 'shotgun' },
+    heidegger: { skin: '#f0c8a0', hair: '#202020', hairStyle: 'short', top: '#2a5a30', sleeve: '#2a5a30', top2: '#d0b040', bottom: '#2a5a30', boots: '#101010', build: 'fat', extras: ['beard', 'belt'] },
+    scarlet: { skin: '#f4d0b0', hair: '#f0d060', hairStyle: 'long', top: '#b01830', sleeve: 'skin', bottom: '#b01830', boots: '#b01830', skirt: 'long', female: true },
+    hojo: { skin: '#e8d0b0', hair: '#202020', hairStyle: 'ponytail', top: '#40a080', sleeve: '#e8e8e8', jacket: '#e8e8e8', bottom: '#404040', boots: '#202020', extras: ['glasses', 'labcoat'] },
+    palmer: { skin: '#f0c8a0', hair: '#a0a0a0', hairStyle: 'bald', top: '#d8a040', sleeve: '#d8a040', top2: '#f0f0f0', bottom: '#d8a040', boots: '#302018', build: 'fat', extras: ['suit'] },
+    reeve: { skin: '#f0c8a0', hair: '#202020', hairStyle: 'slick', top: '#2a3a6a', sleeve: '#2a3a6a', top2: '#f0f0f0', bottom: '#2a3a6a', boots: '#101010', extras: ['beard', 'tie', 'suit'] },
+    scientist: { skin: '#f0c8a0', hair: '#604030', hairStyle: 'short', top: '#9090a0', sleeve: '#e8e8e8', jacket: '#e8e8e8', bottom: '#404050', boots: '#202020', extras: ['glasses', 'labcoat'] },
+    exec: { skin: '#f0c8a0', hair: '#403020', hairStyle: 'slick', top: '#3a3a4a', sleeve: '#3a3a4a', top2: '#f0f0f0', bottom: '#3a3a4a', boots: '#101010', extras: ['tie', 'suit'] },
+    receptionist: { skin: '#f4d0b0', hair: '#6a3a20', hairStyle: 'bob', top: '#3a4a7a', sleeve: '#3a4a7a', top2: '#f0f0f0', bottom: '#3a4a7a', boots: '#202020', skirt: 'short', legs: 'skin', female: true },
+    jessie: { skin: '#f4d0b0', hair: '#6a3820', hairStyle: 'ponytail', top: '#8a8a78', sleeve: 'skin', bottom: '#404838', boots: '#302018', gloves: '#302018', extras: ['redband', 'vestArmor'], female: true },
+    biggs: { skin: '#f0c8a0', hair: '#402818', hairStyle: 'short', top: '#707850', sleeve: 'skin', bottom: '#404838', boots: '#302018', gloves: '#302018', extras: ['redband'] },
+    wedge: { skin: '#f0c8a0', hair: '#403020', hairStyle: 'short', top: '#e0d080', sleeve: '#e0d080', bottom: '#20206a', boots: '#402010', build: 'fat', extras: ['redcap', 'sash'] },
+    marlene: { skin: '#f4d0b0', hair: '#5a3018', hairStyle: 'bob', top: '#f090c8', sleeve: '#f090c8', bottom: '#f090c8', boots: '#a06040', skirt: 'short', legs: 'skin', height: 'kid', extras: ['bowtie'], female: true },
+    elmyra: { skin: '#f0c8a0', hair: '#7a4a28', hairStyle: 'bun', top: '#a04040', sleeve: '#a04040', bottom: '#a04040', boots: '#402818', skirt: 'long', female: true },
+    marle: { skin: '#f0c8a0', hair: '#7a5030', hairStyle: 'bun', top: '#3a8a4a', sleeve: '#3a8a4a', top2: '#f0e0c0', bottom: '#5a4030', boots: '#402818', skirt: 'long', female: true, extras: ['apron'] },
+    corneo: { skin: '#f0c8a0', hair: '#e8c040', hairStyle: 'tuft', top: '#f0e8d8', sleeve: '#b02020', jacket: '#b02020', bottom: '#b02020', boots: '#402018', build: 'fat', extras: ['furcollar'] },
+    johnny: { skin: '#f0c8a0', hair: '#6a3a18', hairStyle: 'short', top: '#c05020', sleeve: '#c05020', bottom: '#3a4a6a', boots: '#302018' },
+    bugenhagen: { skin: '#f0d0b0', hair: '#f0f0f0', hairStyle: 'bald', top: '#8a6a3a', sleeve: '#8a6a3a', bottom: '#8a6a3a', boots: '#6a4a2a', height: 'kid', extras: ['beard', 'robe'] },
+    dyne: { skin: '#6a4028', hair: '#303030', hairStyle: 'short', top: '#6a5a4a', sleeve: 'skin', bottom: '#4a5a30', boots: '#302018', build: 'big', extras: ['gunarmL'] },
+    dio: { skin: '#e8b890', hair: '#f0f0f0', hairStyle: 'short', top: '#e8b890', sleeve: 'skin', bottom: '#f0d040', legs: 'skin', boots: '#e8b890', build: 'big', extras: ['mustache'] },
+    priscilla: { skin: '#f4d0b0', hair: '#f0d060', hairStyle: 'ponytail', top: '#40a0d0', sleeve: 'skin', bottom: '#40a0d0', boots: '#f0f0f0', skirt: 'short', legs: 'skin', height: 'kid', female: true },
+    shera: { skin: '#f4d0b0', hair: '#7a5030', hairStyle: 'long', top: '#e0e0f0', sleeve: '#e0e0f0', bottom: '#4060a0', boots: '#302018', extras: ['glasses'], skirt: 'long', female: true },
+    godo: { skin: '#f0c8a0', hair: '#202020', hairStyle: 'bald', top: '#3a4a3a', sleeve: '#3a4a3a', bottom: '#3a4a3a', boots: '#302018', build: 'big', extras: ['beard', 'robe'] },
+    gast: { skin: '#f0c8a0', hair: '#503020', hairStyle: 'short', top: '#9090a0', sleeve: '#e8e8e8', jacket: '#e8e8e8', bottom: '#404050', boots: '#202020', extras: ['labcoat'] },
+    ifalna: { skin: '#f4d0b0', hair: '#8a5020', hairStyle: 'long', top: '#f0e8e0', sleeve: '#f0e8e0', bottom: '#f0e8e0', boots: '#806040', skirt: 'long', female: true },
+    lucrecia: { skin: '#f4d0b0', hair: '#6a3a20', hairStyle: 'long', top: '#9090a0', sleeve: '#e8e8e8', jacket: '#e8e8e8', bottom: '#404050', boots: '#202020', extras: ['labcoat'], female: true },
+    man: { skin: '#f0c8a0', hair: '#503018', hairStyle: 'short', top: '#6a7a9a', sleeve: '#6a7a9a', bottom: '#4a4a5a', boots: '#302018' },
+    woman: { skin: '#f4d0b0', hair: '#7a4020', hairStyle: 'long', top: '#b06a8a', sleeve: '#b06a8a', bottom: '#b06a8a', boots: '#402818', skirt: 'long', female: true },
+    kid: { skin: '#f4d0b0', hair: '#6a3a18', hairStyle: 'short', top: '#d06a3a', sleeve: 'skin', bottom: '#3a5a8a', boots: '#302018', height: 'kid' },
+    girl: { skin: '#f4d0b0', hair: '#8a4a20', hairStyle: 'ponytail', top: '#e0a040', sleeve: 'skin', bottom: '#e0a040', boots: '#402818', skirt: 'short', legs: 'skin', height: 'kid', female: true },
+    oldman: { skin: '#e8c0a0', hair: '#d0d0d0', hairStyle: 'bald', top: '#7a6a5a', sleeve: '#7a6a5a', bottom: '#5a5048', boots: '#302018', extras: ['beard'] },
+    oldwoman: { skin: '#e8c0a0', hair: '#d8d8d8', hairStyle: 'bun', top: '#6a5a7a', sleeve: '#6a5a7a', bottom: '#6a5a7a', boots: '#302018', skirt: 'long', female: true },
+    worker: { skin: '#e0b088', hair: '#c09020', hairStyle: 'helmet', top: '#8a7040', sleeve: 'skin', bottom: '#4a4038', boots: '#302018' },
+    bartender: { skin: '#f0c8a0', hair: '#303030', hairStyle: 'slick', top: '#f0f0f0', sleeve: '#f0f0f0', top2: '#202020', bottom: '#202020', boots: '#101010', extras: ['tie', 'vest2'] },
+    sailor: { skin: '#f0c8a0', hair: '#f0f0f0', hairStyle: 'cap', top: '#f0f0f0', sleeve: '#f0f0f0', bottom: '#2a3a6a', boots: '#101010' },
+    ninja: { skin: '#f0c8a0', hair: '#202020', hairStyle: 'short', top: '#3a3a5a', sleeve: '#3a3a5a', bottom: '#3a3a5a', boots: '#202020', extras: ['mask'] },
+    cosmo_elder: { skin: '#c89070', hair: '#f0f0f0', hairStyle: 'long', top: '#a06030', sleeve: '#a06030', bottom: '#a06030', boots: '#6a4020', skirt: 'long', extras: ['beard'] },
+    chocobo: { rig: 'chocobo', c1: '#f4d040', c2: '#e8a820', c3: '#f09030' },
+    chocobo_black: { rig: 'chocobo', c1: '#303038', c2: '#202028', c3: '#e0c040' },
+    chocobo_gold: { rig: 'chocobo', c1: '#f8e070', c2: '#e0b030', c3: '#f0f0f0' },
+    moogle: { rig: 'moogle', c1: '#f0f0f0', c2: '#e04060', c3: '#8060c0' },
+    dog: { rig: 'dog', c1: '#a07040', c2: '#f0e0c0', c3: '#302018' },
+    cat: { rig: 'dog', c1: '#8a8a8a', c2: '#f0f0f0', c3: '#302018', small: true },
+    bird: { rig: 'dog', c1: '#f0f0f0', c2: '#a0a0a0', c3: '#f0a020', small: true },
+    ghost: { rig: 'ghost', c1: '#c0e0f0', c2: '#8090c0', c3: '#202040' },
+  };
+
+  C3.variant = function (base, seed) {
+    const b = P[base] || P.man;
+    const r = U.rng(U.strSeed(base + ':' + seed));
+    const pick = (arr) => arr[Math.floor(r() * arr.length)];
+    const hairs = ['#201810', '#503018', '#7a4a20', '#a07040', '#d0b060', '#303030', '#8a3018'];
+    const tops = ['#6a7a9a', '#9a5a4a', '#5a8a5a', '#8a7a4a', '#7a5a8a', '#4a6a8a', '#a08050', '#607060', '#b07060', '#c0b090'];
+    const bots = ['#4a4a5a', '#3a3a3a', '#5a4a38', '#2a3a5a', '#6a5a48'];
+    const styles = b.female ? ['long', 'bob', 'ponytail', 'bun'] : ['short', 'slick', 'short', 'buzz', 'bald'];
+    const o = Object.assign({}, b, { hair: pick(hairs), top: pick(tops), bottom: pick(bots) });
+    o.sleeve = b.sleeve === 'skin' ? 'skin' : o.top;
+    if (b.skirt === 'long') o.bottom = o.top;
+    if (!b.rig && base !== 'oldman' && base !== 'oldwoman' && base !== 'worker') o.hairStyle = pick(styles);
+    if (base === 'oldman' || base === 'oldwoman') o.hair = pick(['#d0d0d0', '#e8e8e8', '#a0a0a0']);
+    o.skin = pick(['#f0c8a0', '#f4d0b0', '#e0b088', '#c89070', '#8a5a38']);
+    return o;
+  };
+
+  function resolve(app) {
+    if (!app) return P.man;
+    if (typeof app === 'string') {
+      if (P[app]) return P[app];
+      const m = app.match(/^([a-z_]+?)(\d+)$/);
+      if (m && P[m[1]]) return C3.variant(m[1], m[2]);
+      return P.man;
+    }
+    const base = app.base ? resolve(app.base) : P.man;
+    return Object.assign({}, base, app);
+  }
+  C3.resolve = resolve;
+
+  // ------------------------------------------------------------------ proportions
+  const PROPS = {
+    field: { foot: [0.085, 0.055, 0.14], shin: 0.17, thigh: 0.15, legW: 0.09, pelvisH: 0.07, torso: 0.23, torsoW: [0.19, 0.25], torsoD: 0.13,
+      head: [0.27, 0.3, 0.25], neck: 0.012, upperArm: 0.13, fore: 0.12, armW: 0.062, foreW: 0.08, hand: [0.085, 0.09, 0.085], shoulderX: 0.155 },
+    battle: { foot: [0.06, 0.04, 0.12], shin: 0.24, thigh: 0.22, legW: 0.075, pelvisH: 0.06, torso: 0.26, torsoW: [0.17, 0.24], torsoD: 0.12,
+      head: [0.14, 0.16, 0.14], neck: 0.03, upperArm: 0.17, fore: 0.15, armW: 0.055, foreW: 0.06, hand: [0.05, 0.06, 0.055], shoulderX: 0.145 },
+  };
+
+  // ------------------------------------------------------------------ face texture
+  const faceCache = {};
+  function faceTexture(a, style) {
+    const key = [a.eyes, a.skin, a.female, (a.extras || []).join(','), a.hair, style].join('|');
+    if (faceCache[key]) return faceCache[key];
+    const c = U.makeCanvas(64, 64), g = c.getContext('2d');
+    const ex = a.extras || [];
+    // Eyes sit at 45% height; brows above; mouth below
+    const eye = a.eyes || '#3a2a20';
+    if (ex.includes('mask')) { g.fillStyle = '#20283a'; g.fillRect(4, 18, 56, 20); g.fillStyle = '#c03030'; g.fillRect(14, 24, 36, 6); faceCache[key] = c; return c; }
+    const drawEye = (x, flip) => {
+      g.fillStyle = '#ffffff'; g.beginPath(); g.ellipse(x, 30, a.female ? 8 : 7.5, a.female ? 7 : 6, 0, 0, Math.PI * 2); g.fill();
+      g.fillStyle = eye; g.beginPath(); g.ellipse(x + (flip ? -1 : 1), 30.5, 4.6, a.female ? 6 : 5.2, 0, 0, Math.PI * 2); g.fill();
+      g.fillStyle = '#101010'; g.beginPath(); g.arc(x + (flip ? -1 : 1), 30.5, 2.3, 0, Math.PI * 2); g.fill();
+      g.fillStyle = '#ffffff'; g.fillRect(x + (flip ? -2 : 1), 28, 1.6, 1.6);
+      g.strokeStyle = '#1a1010'; g.lineWidth = a.female ? 2.6 : 2; g.beginPath(); g.moveTo(x - 8.5, 25); g.lineTo(x + 8.5, 24.5 + (flip ? -1 : 1) * 0.5); g.stroke();
+      // brow
+      g.strokeStyle = U.shade(a.hair || '#402010', -0.3); g.lineWidth = a.female ? 1.6 : 2.4;
+      g.beginPath(); g.moveTo(x - 8, flip ? 17 : 18.5); g.lineTo(x + 8, flip ? 18.5 : 17); g.stroke();
+    };
+    drawEye(20, false); drawEye(44, true);
+    if (ex.includes('shades')) { g.fillStyle = '#0c0c14'; g.fillRect(8, 24, 22, 11); g.fillRect(34, 24, 22, 11); g.fillRect(28, 26, 8, 3); }
+    if (ex.includes('glasses')) { g.strokeStyle = '#e0e0f0'; g.lineWidth = 2; g.strokeRect(10, 24, 20, 13); g.strokeRect(34, 24, 20, 13); g.beginPath(); g.moveTo(30, 29); g.lineTo(34, 29); g.stroke(); }
+    // nose & mouth
+    g.strokeStyle = U.shade(a.skin || '#f0c8a0', -0.35); g.lineWidth = 1.5;
+    g.beginPath(); g.moveTo(32, 36); g.lineTo(33, 42); g.stroke();
+    g.strokeStyle = a.female ? '#b05050' : U.shade(a.skin || '#f0c8a0', -0.45); g.lineWidth = 2;
+    g.beginPath(); g.moveTo(29, 50); g.lineTo(35, 50); g.stroke();
+    if (ex.includes('beard')) { const bc = (a.hair === '#f0f0f0' || a.hair === '#d0d0d0' || a.hair === '#e8e8e8') ? '#e8e8e8' : '#1a1410'; g.fillStyle = bc; g.fillRect(12, 46, 40, 16); g.fillRect(8, 38, 6, 16); g.fillRect(50, 38, 6, 16); g.fillStyle = a.skin; g.fillRect(26, 49, 12, 3); }
+    if (ex.includes('mustache')) { g.fillStyle = a.hair || '#402010'; g.fillRect(22, 45, 20, 4); }
+    faceCache[key] = c;
+    return c;
+  }
+
+  // ------------------------------------------------------------------ helpers
+  const TMP = () => new MB();
+  function meshOf(fn) { const mb = new MB(); fn(mb); return mb.build(); }
+
+  // Hair meshes relative to head bone origin (base of head). hw,hh,hd = head size.
+  function hairMesh(a, hw, hh, hd, style) {
+    const mb = new MB();
+    const H = a.hair || '#402010', L = U.shade(H, 0.2), D = U.shade(H, -0.25);
+    const cy = hh * 0.5;
+    // dome over the top of the head + back/sides coverage (front below the hairline left open)
+    const cap = (scaleY = 0.6, yOff = 0.04, zOff = -0.03, front = 2) => mb.sphere(0, cy + hh * yOff, zOff * hd, hw * 0.57, hh * scaleY, hd * 0.57, H, 8, 6, false, (i, j) => j < 1 ? L : H, 5, front);
+    switch (a.hairStyle) {
+      case 'spiky': {
+        cap(0.6, 0.1, -0.05);
+        const R = hw * 0.5;
+        // big back/top spikes (Cloud)
+        const sp = [
+          [[0, 0.95, -0.2], [0.05, 1, -0.3], 0.55], [[0.3, 0.9, -0.2], [0.6, 0.9, -0.3], 0.5], [[-0.3, 0.9, -0.2], [-0.6, 0.9, -0.3], 0.5],
+          [[0.2, 1.0, 0.25], [0.35, 1, 0.7], 0.45], [[-0.2, 1.0, 0.25], [-0.35, 1, 0.7], 0.45], [[0, 0.8, -0.5], [0, 0.4, -1], 0.5],
+          [[0.45, 0.7, -0.35], [0.9, 0.3, -0.6], 0.5], [[-0.45, 0.7, -0.35], [-0.9, 0.3, -0.6], 0.5], [[0.45, 0.55, 0.2], [1, 0.1, 0.4], 0.4],
+          [[-0.45, 0.55, 0.2], [-1, 0.1, 0.4], 0.4], [[0.15, 0.7, 0.45], [0.2, -0.5, 1], 0.35], [[-0.12, 0.72, 0.45], [-0.25, -0.4, 1], 0.4],
+        ];
+        sp.forEach(([p, d, l]) => mb.spike([p[0] * R * 1.6, cy + p[1] * hh * 0.55, p[2] * hd * 0.9], d, l * hh, hw * 0.16, 4, H));
+        break;
+      }
+      case 'spikyback': {
+        cap(0.6, 0.1, -0.05);
+        const R = hw * 0.5;
+        for (let i = 0; i < 7; i++) { const x = (i - 3) * 0.22; mb.spike([x * R, cy + hh * 0.35, -hd * 0.2], [x * 0.5, 0.25 - Math.abs(x) * 0.2, -1], hh * (0.5 - Math.abs(x) * 0.1), hw * 0.14, 4, H); }
+        mb.spike([0.05 * R, cy + hh * 0.5, hd * 0.35], [0.2, -0.6, 1], hh * 0.3, hw * 0.1, 4, H);
+        mb.spike([-0.2 * R, cy + hh * 0.5, hd * 0.35], [-0.3, -0.7, 1], hh * 0.28, hw * 0.1, 4, H);
+        break;
+      }
+      case 'long': case 'longstraight': case 'longmessy': case 'braid': {
+        cap(0.62, 0.08, -0.04);
+        // bangs
+        mb.frustum(0, cy + hh * 0.18, hd * 0.42, hw * 0.95, hd * 0.12, hw * 0.9, hd * 0.1, hh * 0.3, H);
+        if (a.hairStyle === 'braid') {
+          for (let i = 0; i < 5; i++) mb.box(0, cy - hh * (0.25 + i * 0.28), -hd * 0.6 - i * 0.004, hw * 0.22, hh * 0.24, hd * 0.2, i % 2 ? H : D);
+          mb.frustum(0, cy - hh * 0.1, -hd * 0.45, hw * 0.9, hd * 0.25, hw * 0.5, hd * 0.2, hh * 0.35, H);
+          mb.box(hw * 0.52, cy + hh * 0.05, hd * 0.2, hw * 0.1, hh * 0.45, hd * 0.12, H);   // side locks
+          mb.box(-hw * 0.52, cy + hh * 0.05, hd * 0.2, hw * 0.1, hh * 0.45, hd * 0.12, H);
+          if ((a.extras || []).includes('bow')) { mb.box(0, cy + hh * 0.2, -hd * 0.62, hw * 0.55, hh * 0.18, hd * 0.12, '#f070a0'); }
+        } else {
+          const len = a.hairStyle === 'longstraight' ? 2.4 : a.hairStyle === 'longmessy' ? 1.3 : 1.7;
+          mb.frustum(0, cy - hh * len, -hd * 0.42, hw * (a.hairStyle === 'longmessy' ? 0.9 : 0.7), hd * 0.2, hw * 1.05, hd * 0.35, hh * (len + 0.35), H);
+          mb.box(hw * 0.55, cy - hh * 0.25, hd * 0.1, hw * 0.14, hh * 0.9, hd * 0.25, H);
+          mb.box(-hw * 0.55, cy - hh * 0.25, hd * 0.1, hw * 0.14, hh * 0.9, hd * 0.25, H);
+          if (a.hairStyle === 'longmessy') for (let i = 0; i < 4; i++) mb.spike([(i - 1.5) * hw * 0.25, cy + hh * 0.2, hd * 0.4], [(i - 1.5) * 0.3, -1, 0.5], hh * 0.35, hw * 0.08, 4, H);
+          if (a.hairStyle === 'longstraight') { mb.spike([hw * 0.2, cy + hh * 0.35, hd * 0.45], [0.4, -1, 0.5], hh * 0.45, hw * 0.1, 4, H); mb.spike([-hw * 0.2, cy + hh * 0.35, hd * 0.45], [-0.4, -1, 0.5], hh * 0.45, hw * 0.1, 4, H); }
+        }
+        break;
+      }
+      case 'ponytail': case 'renotail':
+        cap(0.62, 0.08, -0.04);
+        mb.frustum(0, cy + hh * 0.2, hd * 0.42, hw * 0.9, hd * 0.1, hw * 0.85, hd * 0.1, hh * 0.25, H);
+        mb.frustum(0, cy - hh * (a.hairStyle === 'renotail' ? 1.0 : 0.8), -hd * 0.6, hw * 0.12, hd * 0.12, hw * 0.25, hd * 0.2, hh * (a.hairStyle === 'renotail' ? 1.2 : 0.95), H);
+        if (a.hairStyle === 'renotail') for (let i = 0; i < 5; i++) mb.spike([(i - 2) * hw * 0.2, cy + hh * 0.5, hd * 0.1], [(i - 2) * 0.3, 1, -0.3], hh * 0.3, hw * 0.08, 4, H);
+        break;
+      case 'short': case 'slick':
+        cap(a.hairStyle === 'slick' ? 0.55 : 0.6, 0.1, -0.05);
+        if (a.hairStyle === 'short') mb.frustum(0, cy + hh * 0.22, hd * 0.4, hw * 0.9, hd * 0.1, hw * 0.8, hd * 0.1, hh * 0.22, H);
+        break;
+      case 'bob':
+        cap(0.62, 0.08, -0.04);
+        mb.frustum(0, cy - hh * 0.35, -hd * 0.05, hw * 1.12, hd * 1.0, hw * 1.12, hd * 1.08, hh * 0.65, H);
+        mb.frustum(0, cy + hh * 0.18, hd * 0.44, hw * 0.95, hd * 0.1, hw * 0.9, hd * 0.1, hh * 0.28, H);
+        break;
+      case 'bun':
+        cap(0.6, 0.1, -0.05);
+        mb.sphere(0, cy + hh * 0.55, -hd * 0.35, hw * 0.22, hh * 0.2, hd * 0.22, H, 6, 4, false);
+        break;
+      case 'buzz': cap(0.5, 0.15, -0.05); mb.box(0, cy + hh * 0.52, 0, hw * 0.75, hh * 0.12, hd * 0.75, H); break;
+      case 'tuft': mb.spike([0, cy + hh * 0.45, 0], [0, 1, 0.2], hh * 0.35, hw * 0.15, 4, H); break;
+      case 'bald': break;
+      case 'helmet':
+        mb.sphere(0, cy + hh * 0.12, 0, hw * 0.62, hh * 0.62, hd * 0.64, H, 8, 5, false, (i, j) => j > 2 ? D : H);
+        mb.box(0, cy + hh * 0.05, hd * 0.2, hw * 1.2, hh * 0.08, hd * 1.1, D);
+        break;
+      case 'cap':
+        mb.sphere(0, cy + hh * 0.15, 0, hw * 0.58, hh * 0.55, hd * 0.6, H, 8, 4, false);
+        mb.box(0, cy + hh * 0.2, hd * 0.55, hw * 0.8, hh * 0.05, hd * 0.4, D);
+        break;
+      default: cap();
+    }
+    const ex = a.extras || [];
+    if (ex.includes('headband') || ex.includes('redband')) mb.frustum(0, cy + hh * 0.05, 0, hw * 1.06, hd * 1.06, hw * 1.06, hd * 1.06, hh * 0.1, ex.includes('redband') ? '#c02020' : '#e8e8e8');
+    if (ex.includes('redcap')) mb.sphere(0, cy + hh * 0.3, 0, hw * 0.58, hh * 0.45, hd * 0.6, '#c02020', 8, 4, false);
+    if (ex.includes('goggles')) { mb.frustum(0, cy + hh * 0.3, 0.01, hw * 1.08, hd * 1.08, hw * 1.08, hd * 1.08, hh * 0.08, '#303848'); mb.box(hw * 0.22, cy + hh * 0.38, hd * 0.55, hw * 0.3, hh * 0.14, hd * 0.08, '#80c0e0'); mb.box(-hw * 0.22, cy + hh * 0.38, hd * 0.55, hw * 0.3, hh * 0.14, hd * 0.08, '#80c0e0'); }
+    return mb.build();
+  }
+
+  // Weapon meshes (in hand bone space; hand points down -y, weapon extends along -y/forward)
+  const WEAPON = {
+    buster: (mb, s) => { mb.box(0, -0.02 * s, 0, 0.03 * s, 0.12 * s, 0.03 * s, '#5a3a20'); mb.box(0, -0.09 * s, 0, 0.1 * s, 0.03 * s, 0.05 * s, '#606068'); mb.frustum(0, -0.9 * s, 0, 0.012 * s, 0.14 * s, 0.03 * s, 0.14 * s, 0.8 * s, { side: '#c8ccd4', left: '#e8ecf0', right: '#9a9ea8', front: '#c8ccd4', back: '#b0b4bc', top: '#909098', bottom: '#d0d4dc' }, [0, -0.02 * s]); },
+    masamune: (mb, s) => { mb.box(0, -0.02 * s, 0, 0.025 * s, 0.14 * s, 0.025 * s, '#303030'); mb.box(0, -0.09 * s, 0, 0.05 * s, 0.015 * s, 0.05 * s, '#c0a040'); mb.frustum(0, -1.5 * s, 0.02 * s, 0.006 * s, 0.01 * s, 0.012 * s, 0.03 * s, 1.4 * s, '#e8ecf4'); },
+    staff: (mb, s) => { mb.prism(0, -0.55 * s, 0, 0.012 * s, 0.012 * s, 0.9 * s, 5, '#b08040'); mb.sphere(0, 0.38 * s, 0, 0.035 * s, 0.035 * s, 0.035 * s, '#e8e8f8', 6, 4); },
+    spear: (mb, s) => { mb.prism(0, -0.6 * s, 0, 0.012 * s, 0.012 * s, 1.2 * s, 5, '#8a6a3a'); mb.prism(0, 0.6 * s, 0, 0.03 * s, 0, 0.18 * s, 4, '#c8ccd4'); },
+    gun: (mb, s) => { mb.box(0, -0.02 * s, 0.05 * s, 0.03 * s, 0.05 * s, 0.14 * s, '#505860'); mb.box(0, 0.01 * s, 0.14 * s, 0.018 * s, 0.018 * s, 0.1 * s, '#404448'); },
+    rifle: (mb, s) => { mb.box(0, -0.02 * s, 0.1 * s, 0.03 * s, 0.05 * s, 0.35 * s, '#3a3a40'); },
+    shotgun: (mb, s) => { mb.box(0, -0.02 * s, 0.1 * s, 0.03 * s, 0.05 * s, 0.4 * s, '#303030'); },
+    rod: (mb, s) => { mb.prism(0, -0.4 * s, 0, 0.01 * s, 0.01 * s, 0.45 * s, 5, '#303038'); mb.prism(0, 0.05 * s, 0, 0.014 * s, 0.014 * s, 0.06 * s, 5, '#e0c040'); },
+    shuriken: (mb, s) => { mb.push(); mb.translate(0, -0.05 * s, 0.1 * s); for (let i = 0; i < 4; i++) { mb.push(); mb.rotate(0, 0, i * Math.PI / 2); mb.frustum(0, 0, 0, 0.06 * s, 0.015 * s, 0.001, 0.005 * s, 0.22 * s, '#b8bcc4'); mb.pop(); } mb.pop(); },
+  };
+
+  // ------------------------------------------------------------------ humanoid rig
+  function buildHuman(a, style) {
+    const pr = Object.assign({}, PROPS[style] || PROPS.field);
+    const ex = a.extras || [];
+    const m = new FF7.Model();
+    m.app = a; m.style = style; m.rig = 'human';
+    let bw = 1, bd = 1, hs = 1;
+    if (a.build === 'big') { bw = 1.35; bd = 1.25; }
+    if (a.build === 'fat') { bw = 1.4; bd = 1.5; }
+    if (a.build === 'slim') { bw = 0.9; bd = 0.9; }
+    if (a.female) { bw *= 0.88; }
+    let legScale = 1, overall = 1;
+    if (a.height === 'kid') { legScale = 0.6; hs = 1.05; }
+    if (a.build === 'tall') { legScale = 1.15; }
+    const S = a.skin || '#f0c8a0', T = a.top || '#6a7a9a', B = a.bottom || '#4a4a5a', BO = a.boots || '#302018';
+    const sleeve = a.sleeve === 'skin' ? S : (a.sleeve || T);
+    const legC = a.legs === 'skin' ? S : B;
+    const G = a.gloves || S;
+    const dS = U.shade(S, -0.15);
+
+    const foot = pr.foot, shin = pr.shin * legScale, thigh = pr.thigh * legScale;
+    const hipsY = foot[1] + shin + thigh;
+    const legX = 0.055 * bw;
+    m.bone('hips', null, [0, hipsY, 0]);
+    m.bone('torso', 'hips', [0, pr.pelvisH * 0.5, 0]);
+    m.bone('head', 'torso', [0, pr.torso + pr.neck, 0.005]);
+    m.bone('armL', 'torso', [pr.shoulderX * bw, pr.torso * 0.86, 0]);
+    m.bone('foreL', 'armL', [0, -pr.upperArm, 0]);
+    m.bone('handL', 'foreL', [0, -pr.fore, 0]);
+    m.bone('armR', 'torso', [-pr.shoulderX * bw, pr.torso * 0.86, 0]);
+    m.bone('foreR', 'armR', [0, -pr.upperArm, 0]);
+    m.bone('handR', 'foreR', [0, -pr.fore, 0]);
+    m.bone('thighL', 'hips', [legX, 0, 0]);
+    m.bone('shinL', 'thighL', [0, -thigh, 0]);
+    m.bone('footL', 'shinL', [0, -shin, 0]);
+    m.bone('thighR', 'hips', [-legX, 0, 0]);
+    m.bone('shinR', 'thighR', [0, -thigh, 0]);
+    m.bone('footR', 'shinR', [0, -shin, 0]);
+    m.bone('weapon', 'handR', [0, -pr.hand[1] * 0.5, 0]);
+    m.bone('back', 'torso', [0, pr.torso * 0.55, -pr.torsoD * 0.5 * bd]);
+
+    // pelvis
+    m.attach('hips', meshOf(mb => mb.frustum(0, -pr.pelvisH * 0.5, 0, pr.torsoW[0] * bw * 0.95, pr.torsoD * bd, pr.torsoW[0] * bw, pr.torsoD * bd, pr.pelvisH, a.skirt ? B : B)));
+    // torso
+    m.attach('torso', meshOf(mb => {
+      const tw0 = pr.torsoW[0] * bw, tw1 = pr.torsoW[1] * bw, td = pr.torsoD * bd;
+      const col = { side: T, front: T, back: U.shade(T, -0.1), top: T };
+      if (a.build === 'fat') { mb.sphere(0, pr.torso * 0.45, 0.01, tw1 * 0.6, pr.torso * 0.6, td * 0.62, T, 8, 5, false); }
+      else mb.frustum(0, 0, 0, tw0, td, tw1, td * 1.05, pr.torso, col);
+      if (a.jacket) { // open jacket panels
+        mb.frustum(tw0 * 0.36, 0, td * 0.5, tw0 * 0.3, 0.012, tw1 * 0.32, 0.012, pr.torso, a.jacket);
+        mb.frustum(-tw0 * 0.36, 0, td * 0.5, tw0 * 0.3, 0.012, tw1 * 0.32, 0.012, pr.torso, a.jacket);
+        mb.frustum(0, 0, -td * 0.02, tw0 * 1.02, td * 1.02, tw1 * 1.02, td * 1.06, pr.torso * 0.98, { side: a.jacket, front: T, top: a.jacket, bottom: a.jacket });
+      }
+      if (ex.includes('suit')) { mb.frustum(0, pr.torso * 0.45, td * 0.52, tw0 * 0.25, 0.01, tw1 * 0.12, 0.01, pr.torso * 0.55, a.top2 || '#f0f0f0'); }
+      if (ex.includes('tie')) mb.frustum(0, pr.torso * 0.2, td * 0.54, 0.015, 0.01, 0.022, 0.01, pr.torso * 0.75, '#8a2020');
+      if (ex.includes('suspenders')) { mb.box(tw0 * 0.25, pr.torso * 0.5, td * 0.53, 0.015, pr.torso, 0.01, '#5a3a20'); mb.box(-tw0 * 0.25, pr.torso * 0.5, td * 0.53, 0.015, pr.torso, 0.01, '#5a3a20'); }
+      if (ex.includes('harness')) { mb.box(0, pr.torso * 0.55, td * 0.54, tw1 * 0.9, 0.02, 0.012, '#6a4020'); mb.box(0, pr.torso * 0.55, -td * 0.54, tw1 * 0.9, 0.02, 0.012, '#6a4020'); }
+      if (ex.includes('vest')) { mb.frustum(0, 0, 0, tw0 * 1.06, td * 1.08, tw1 * 1.08, td * 1.12, pr.torso * 0.95, { side: a.top, front: a.top, top: a.top }); mb.box(0, pr.torso * 0.4, td * 0.57, tw0 * 0.5, pr.torso * 0.6, 0.01, a.top2 || '#e0e0e0'); }
+      if (ex.includes('vestArmor')) mb.frustum(0, pr.torso * 0.3, 0, tw0 * 1.08, td * 1.15, tw1 * 1.06, td * 1.15, pr.torso * 0.7, U.shade(T, -0.25));
+      if (ex.includes('labcoat')) { mb.frustum(0, -pr.torso * 1.2, 0, tw1 * 1.15, td * 1.2, tw1 * 1.05, td * 1.12, pr.torso * 2.2, { side: a.jacket || '#e8e8e8', front: T, top: a.jacket || '#e8e8e8', bottom: a.jacket || '#e8e8e8' }); }
+      if (ex.includes('coat')) { mb.frustum(0, -pr.torso * 1.9, -0.005, tw1 * 1.35, td * 1.5, tw1 * 1.02, td * 1.1, pr.torso * 2.85, { side: T, front: U.shade(T, 0.05), back: U.shade(T, -0.1), top: T, bottom: T }); }
+      if (ex.includes('robe')) mb.frustum(0, -pr.torso * 1.6, 0, tw1 * 1.4, td * 1.5, tw1 * 1.02, td * 1.1, pr.torso * 2.5, T);
+      if (ex.includes('apron')) mb.box(0, -pr.torso * 0.3, td * 0.56, tw0 * 0.8, pr.torso * 1.2, 0.01, a.top2 || '#f0e0c0');
+      if (ex.includes('sash')) mb.box(0, pr.torso * 0.5, td * 0.55, tw1 * 0.9, 0.03, 0.01, '#8a4a20');
+      if (ex.includes('furcollar')) mb.frustum(0, pr.torso * 0.8, 0, tw1 * 1.2, td * 1.3, tw1 * 0.8, td * 1.0, pr.torso * 0.3, '#f0f0e8');
+      if (ex.includes('bowtie')) mb.box(0, pr.torso * 0.8, td * 0.55, 0.06, 0.035, 0.015, '#f0e040');
+      if (ex.includes('openshirt')) mb.box(0, pr.torso * 0.7, td * 0.53, tw1 * 0.3, pr.torso * 0.5, 0.01, S);
+      if (ex.includes('cape')) {
+        mb.frustum(0, -pr.torso * 1.9, -0.01, tw1 * 1.5, td * 1.7, tw1 * 1.2, td * 1.3, pr.torso * 2.95, { side: '#b01818', front: '#b01818', back: '#8a1010', top: '#b01818', bottom: '#6a0808' });
+        mb.frustum(0, pr.torso * 0.85, 0, tw1 * 0.9, td * 1.1, tw1 * 0.55, td * 0.9, pr.torso * 0.35, '#b01818'); // collar
+      }
+      if (a.belt || ex.includes('belt')) mb.frustum(0, -0.005, 0, tw0 * 1.04, td * 1.05, tw0 * 1.04, td * 1.05, 0.03, a.belt || '#402818');
+    }));
+    // skirt / dress
+    if (a.skirt) {
+      const long = a.skirt === 'long';
+      const len = long ? thigh + shin * 0.95 : thigh * 0.55;
+      m.attach('hips', meshOf(mb => mb.frustum(0, -len, 0, pr.torsoW[0] * bw * (long ? 1.6 : 1.3), pr.torsoD * bd * (long ? 1.6 : 1.35), pr.torsoW[0] * bw * 1.02, pr.torsoD * bd * 1.05, len + pr.pelvisH * 0.3, a.bottom)));
+    }
+    // head
+    const hw = pr.head[0] * hs, hh = pr.head[1] * hs, hd = pr.head[2] * hs;
+    m.attach('head', meshOf(mb => {
+      mb.sphere(0, hh * 0.5, 0, hw * 0.5, hh * 0.52, hd * 0.5, S, 8, 6, true);
+      mb.box(0, -pr.neck * 0.5, 0, hw * 0.3, pr.neck + 0.04, hd * 0.3, dS);   // neck
+      mb.box(hw * 0.5, hh * 0.48, 0, hw * 0.06, hh * 0.18, hd * 0.12, dS);   // ears
+      mb.box(-hw * 0.5, hh * 0.48, 0, hw * 0.06, hh * 0.18, hd * 0.12, dS);
+    }));
+    const faceMesh = meshOf(mb => mb.plane(0, hh * 0.44, hd * 0.505, hw * 0.78, hh * 0.72, '#ffffff'));
+    faceMesh.tex = faceTexture(a, style); faceMesh.alphaTest = 0.4;
+    m.attach('head', faceMesh);
+    m.attach('head', hairMesh(a, hw, hh, hd, style));
+    if (ex.includes('mask')) m.attach('head', meshOf(mb => mb.box(0, hh * 0.45, hd * 0.47, hw * 0.8, hh * 0.35, hd * 0.12, '#20283a')));
+
+    // arms
+    const armMesh = (side) => meshOf(mb => {
+      mb.limb(pr.armW * bw, pr.armW * bw, pr.armW * 0.92 * bw, pr.armW * 0.92 * bw, pr.upperArm, sleeve);
+      mb.sphere(0, 0, 0, pr.armW * 0.62 * bw, pr.armW * 0.62, pr.armW * 0.62 * bw, sleeve, 6, 4, false); // shoulder cap
+      if (ex.includes('pauldron' + side)) mb.frustum(0, -0.03, 0, pr.armW * 1.9, pr.armW * 1.9, pr.armW * 1.3, pr.armW * 1.4, 0.06, a.top2 || '#8a8a98');
+      if (a.build === 'big' || a.build === 'fat') mb.sphere(0, 0.01, 0, pr.armW * 0.9, pr.armW * 0.8, pr.armW * 0.9, sleeve, 6, 4, false);
+    });
+    const foreMesh = (side) => meshOf(mb => {
+      const gun = ex.includes('gunarm' + side);
+      if (gun) {
+        mb.prism(0, -pr.fore * 1.25, 0, pr.foreW * 0.75, pr.foreW * 0.75, pr.fore * 1.25, 8, '#8a9098', true);
+        mb.prism(0, -pr.fore * 1.35, 0, pr.foreW * 0.35, pr.foreW * 0.35, 0.03, 6, '#404448');
+        return;
+      }
+      const fc = a.sleeve === 'skin' ? S : (ex.includes('rolled') ? S : sleeve);
+      mb.limb(pr.foreW * 0.85 * bw, pr.foreW * 0.85 * bw, pr.foreW * bw, pr.foreW * bw, pr.fore, a.sleeve === 'skin' || a.female && a.sleeve === 'skin' ? S : fc);
+      if (a.gloves && a.sleeve === 'skin') mb.frustum(0, -pr.fore, 0, pr.foreW * 1.05 * bw, pr.foreW * 1.05 * bw, pr.foreW * 1.02 * bw, pr.foreW * 1.02 * bw, pr.fore * 0.45, a.gloves);
+      if (ex.includes('wristband') || ex.includes('armguard') || ex.includes('bangles')) mb.frustum(0, -pr.fore * 0.85, 0, pr.foreW * 1.1, pr.foreW * 1.1, pr.foreW * 1.1, pr.foreW * 1.1, pr.fore * 0.25, ex.includes('bangles') ? '#d0b040' : '#e8e8e8');
+    });
+    const handMesh = (side) => meshOf(mb => {
+      if (ex.includes('gunarm' + side)) return;
+      const claw = ex.includes('claw' + side);
+      const gc = claw ? '#d0a030' : G;
+      const hdim = pr.hand;
+      mb.box(0, -hdim[1] * 0.5, 0.004, hdim[0] * bw, hdim[1], hdim[2], gc);
+      mb.box(0, -hdim[1] * 0.35, hdim[2] * 0.45, hdim[0] * 0.3, hdim[1] * 0.4, hdim[2] * 0.3, U.shade(gc, -0.1)); // thumb
+      if (claw) for (let i = 0; i < 3; i++) mb.spike([(i - 1) * hdim[0] * 0.3, -hdim[1], 0], [0, -1, 0.1], hdim[1] * 0.7, hdim[0] * 0.1, 4, '#e0c040');
+    });
+    m.attach('armL', armMesh('L')); m.attach('armR', armMesh('R'));
+    m.attach('foreL', foreMesh('L')); m.attach('foreR', foreMesh('R'));
+    m.attach('handL', handMesh('L')); m.attach('handR', handMesh('R'));
+    // legs
+    const lw = pr.legW * (a.build === 'fat' ? 1.3 : a.build === 'big' ? 1.25 : 1) * (a.female ? 0.9 : 1);
+    const thighMesh = meshOf(mb => mb.limb(lw * 1.1, lw * 1.15, lw * 0.95, lw, thigh, legC));
+    const shinMesh = meshOf(mb => {
+      mb.limb(lw * 0.95, lw, lw * 0.85, lw * 0.9, shin, legC);
+      mb.frustum(0, -shin, 0, lw * 1.0, lw * 1.05, lw * 1.05, lw * 1.1, shin * 0.45, BO);   // boot shaft
+    });
+    const footMesh = meshOf(mb => mb.frustum(0, -foot[1], foot[2] * 0.22, foot[0] * 1.05, foot[2], foot[0] * 0.95, foot[2] * 0.75, foot[1], { side: BO, top: U.shade(BO, 0.1), front: BO, bottom: U.shade(BO, -0.4) }));
+    ['L', 'R'].forEach(sd => { m.attach('thigh' + sd, thighMesh); m.attach('shin' + sd, shinMesh); m.attach('foot' + sd, footMesh); });
+    // back items (field)
+    if (ex.includes('busterback')) m.attach('back', meshOf(mb => { mb.push(); mb.rotate(0, 0, 0.35); mb.translate(0, 0.1, -0.03); WEAPON.buster(mb, style === 'field' ? 0.72 : 1); mb.pop(); }), null, null);
+    if (ex.includes('spearback')) m.attach('back', meshOf(mb => { mb.push(); mb.rotate(0, 0, 0.3); mb.translate(0, 0, -0.03); WEAPON.spear(mb, 0.8); mb.pop(); }));
+    if (ex.includes('masamuneback')) m.attach('back', meshOf(mb => { mb.push(); mb.rotate(0, 0, 0.2); WEAPON.masamune(mb, 0.6); mb.pop(); }));
+    if (ex.includes('shurikenback')) m.attach('back', meshOf(mb => { mb.push(); mb.translate(0, 0, -0.03); mb.rotate(Math.PI / 2, 0, 0); WEAPON.shuriken(mb, 0.7); mb.pop(); }));
+    m.height = hipsY + pr.pelvisH * 0.5 + pr.torso + pr.neck + hh;
+    m.headTop = m.height;
+    // weapon in hand (battle)
+    m.weaponMesh = null;
+    if (a.weapon && WEAPON[a.weapon]) {
+      m.weaponMesh = meshOf(mb => { mb.push(); mb.rotate(Math.PI / 2 * (a.weapon === 'gun' || a.weapon === 'rifle' || a.weapon === 'shotgun' ? 0 : 1), 0, 0); WEAPON[a.weapon](mb, style === 'battle' ? 1 : 0.75); mb.pop(); });
+    }
+    m.showWeapon = function (on) {
+      const b = m.bones.weapon;
+      b.meshes = on && m.weaponMesh ? [{ mesh: m.weaponMesh, m: null, opts: null }] : [];
+      if (m.bones.back) m.bones.back.visible = !on;
+    };
+    m.anims = { idle: 'idle', walk: 'walk', run: 'run', battle: 'battle', attack: attackAnim(a), hurt: 'hurt', dead: 'dead', cast: 'cast', item: 'item', victory: 'victory', weak: 'weak', defend: 'defend' };
+    return m;
+  }
+  function attackAnim(a) {
+    return { buster: 'slash', masamune: 'slash', fist: 'punch', staff: 'slash', spear: 'thrust', gunarm: 'shoot', gun: 'shoot', rifle: 'shoot', shuriken: 'slash', shotgun: 'shoot', rod: 'slash' }[a.weapon] || 'punch';
+  }
+
+  // ------------------------------------------------------------------ quadrupeds & specials
+  function buildQuad(a, style) {
+    const m = new FF7.Model(); m.app = a; m.rig = 'quad';
+    const C1 = a.c1, C2 = a.c2, C3c = a.c3;
+    const s = a.small ? 0.55 : (a.rig === 'redxiii' ? 1 : 0.8);
+    const legLen = 0.26 * s, bodyY = legLen + 0.06 * s;
+    m.bone('body', null, [0, bodyY, 0]);
+    m.bone('head', 'body', [0, 0.1 * s, 0.26 * s]);
+    m.bone('tail', 'body', [0, 0.06 * s, -0.26 * s], [0.3, 0, 0]);
+    m.bone('legFL', 'body', [0.08 * s, 0, 0.18 * s]); m.bone('legFR', 'body', [-0.08 * s, 0, 0.18 * s]);
+    m.bone('legBL', 'body', [0.08 * s, 0, -0.18 * s]); m.bone('legBR', 'body', [-0.08 * s, 0, -0.18 * s]);
+    m.attach('body', meshOf(mb => {
+      mb.sphere(0, 0.02 * s, 0, 0.14 * s, 0.12 * s, 0.3 * s, C1, 8, 5, true);
+      if (a.rig === 'redxiii') {
+        mb.sphere(0, 0.07 * s, 0.14 * s, 0.17 * s, 0.16 * s, 0.17 * s, C2, 8, 5, false);   // mane
+        for (let i = 0; i < 6; i++) mb.spike([0, 0.14 * s, (0.12 - i * 0.06) * s], [0, 1, -0.6], 0.1 * s, 0.03 * s, 4, C2);
+        mb.box(0, 0.02 * s, -0.02 * s, 0.29 * s, 0.03 * s, 0.1 * s, '#303030');   // tattoo band hint
+      }
+    }));
+    m.attach('head', meshOf(mb => {
+      mb.sphere(0, 0.03 * s, 0.03 * s, 0.1 * s, 0.1 * s, 0.11 * s, C1, 8, 5, true);
+      mb.frustum(0, -0.02 * s, 0.14 * s, 0.09 * s, 0.1 * s, 0.07 * s, 0.08 * s, 0.07 * s, C1);        // snout
+      mb.box(0, 0.02 * s, 0.19 * s, 0.03 * s, 0.03 * s, 0.03 * s, '#202020');                         // nose
+      mb.spike([0.06 * s, 0.1 * s, 0], [0.4, 1, -0.3], 0.09 * s, 0.035 * s, 4, C1);                    // ears
+      mb.spike([-0.06 * s, 0.1 * s, 0], [-0.4, 1, -0.3], 0.09 * s, 0.035 * s, 4, C1);
+      mb.box(0.055 * s, 0.05 * s, 0.1 * s, 0.03 * s, 0.02 * s, 0.02 * s, a.rig === 'redxiii' ? '#f0e040' : '#202020');
+      mb.box(-0.055 * s, 0.05 * s, 0.1 * s, 0.03 * s, 0.02 * s, 0.02 * s, a.rig === 'redxiii' ? '#403020' : '#202020');
+      if (a.rig === 'redxiii') { mb.spike([0, 0.1 * s, -0.02 * s], [0.2, 1, -0.4], 0.12 * s, 0.02 * s, 4, '#c02020'); mb.spike([0.02 * s, 0.1 * s, -0.02 * s], [0.4, 0.9, -0.4], 0.1 * s, 0.015 * s, 4, '#f0f0f0'); }
+    }));
+    m.attach('tail', meshOf(mb => {
+      mb.push(); mb.rotate(-1.2, 0, 0); mb.prism(0, 0, 0, 0.025 * s, 0.018 * s, 0.26 * s, 5, C1); mb.pop();
+      if (a.rig === 'redxiii') { mb.push(); mb.rotate(-1.2, 0, 0); mb.translate(0, 0.26 * s, 0); mb.prism(0, 0, 0, 0.05 * s, 0, 0.14 * s, 5, '#f0a020'); mb.prism(0, 0.02 * s, 0, 0.035 * s, 0, 0.16 * s, 5, C3c); mb.pop(); }
+    }), null, a.rig === 'redxiii' ? null : null);
+    const legM = meshOf(mb => { mb.limb(0.05 * s, 0.06 * s, 0.035 * s, 0.04 * s, legLen, C1); mb.box(0, -legLen, 0.015 * s, 0.05 * s, 0.03 * s, 0.07 * s, a.rig === 'redxiii' ? '#d0b040' : C1); });
+    ['legFL', 'legFR', 'legBL', 'legBR'].forEach(n => m.attach(n, legM));
+    if (a.rig === 'redxiii') m.attach('head', meshOf(mb => { for (let i = 0; i < 3; i++) mb.box(0.1 * s, -0.02 * s - i * 0.03 * s, 0, 0.012 * s, 0.03 * s, 0.012 * s, i % 2 ? '#e0e0e0' : '#4060c0'); }));
+    m.height = bodyY + 0.25 * s;
+    m.anims = { idle: 'q_idle', walk: 'q_walk', run: 'q_run', battle: 'q_battle', attack: 'q_attack', hurt: 'q_hurt', dead: 'q_dead', cast: 'q_cast', item: 'q_cast', victory: 'q_victory', weak: 'q_battle', defend: 'q_battle' };
+    m.showWeapon = () => {};
+    return m;
+  }
+
+  function buildChocobo(a) {
+    const m = new FF7.Model(); m.app = a; m.rig = 'human';
+    const C1 = a.c1, C2 = a.c2, C3c = a.c3;
+    m.bone('hips', null, [0, 0.62, 0]);
+    m.bone('torso', 'hips', [0, 0, 0]);
+    m.bone('head', 'torso', [0, 0.42, 0.22]);
+    m.bone('armL', 'torso', [0.2, 0.08, 0]); m.bone('armR', 'torso', [-0.2, 0.08, 0]);
+    m.bone('thighL', 'hips', [0.1, -0.05, 0]); m.bone('shinL', 'thighL', [0, -0.28, 0.02]); m.bone('footL', 'shinL', [0, -0.28, 0]);
+    m.bone('thighR', 'hips', [-0.1, -0.05, 0]); m.bone('shinR', 'thighR', [0, -0.28, 0.02]); m.bone('footR', 'shinR', [0, -0.28, 0]);
+    m.attach('torso', meshOf(mb => {
+      mb.sphere(0, 0.05, -0.02, 0.24, 0.22, 0.3, C1, 8, 5, true);
+      mb.push(); mb.translate(0, 0.12, 0.2); mb.rotate(-0.35, 0, 0); mb.prism(0, 0, 0, 0.08, 0.06, 0.34, 6, C1, true); mb.pop();     // neck
+      for (let i = 0; i < 4; i++) mb.spike([(i - 1.5) * 0.06, 0.12, -0.28], [(i - 1.5) * 0.3, 0.5, -1], 0.22, 0.05, 4, C2);          // tail feathers
+    }));
+    m.attach('head', meshOf(mb => {
+      mb.sphere(0, 0.05, 0.03, 0.1, 0.1, 0.13, C1, 8, 5, true);
+      mb.frustum(0, 0.02, 0.2, 0.08, 0.12, 0.05, 0.02, 0.05, C3c);                                   // beak
+      mb.spike([0, 0.12, -0.02], [0, 0.6, -1], 0.16, 0.035, 4, C1); mb.spike([0.03, 0.12, 0.02], [0.4, 1, -0.4], 0.12, 0.03, 4, C1);
+      mb.box(0.075, 0.08, 0.1, 0.015, 0.03, 0.03, '#202020'); mb.box(-0.075, 0.08, 0.1, 0.015, 0.03, 0.03, '#202020');
+    }));
+    const wing = meshOf(mb => mb.frustum(0, -0.18, -0.05, 0.03, 0.1, 0.04, 0.22, 0.24, C2));
+    m.attach('armL', wing); m.attach('armR', wing);
+    const leg = meshOf(mb => mb.limb(0.05, 0.05, 0.03, 0.03, 0.28, C3c));
+    const thighM = meshOf(mb => mb.limb(0.1, 0.12, 0.06, 0.06, 0.28, C1));
+    const footM = meshOf(mb => { mb.box(0, -0.01, 0.06, 0.1, 0.02, 0.14, C3c); });
+    ['L', 'R'].forEach(sd => { m.attach('thigh' + sd, thighM); m.attach('shin' + sd, leg); m.attach('foot' + sd, footM); });
+    m.height = 1.25;
+    m.anims = { idle: 'idle', walk: 'walk', run: 'run', battle: 'idle', attack: 'kick', hurt: 'hurt', dead: 'dead', cast: 'idle', item: 'idle', victory: 'jump', weak: 'idle', defend: 'idle' };
+    m.showWeapon = () => {};
+    return m;
+  }
+
+  function buildCait(a, style) {
+    // Big moogle carrying Cait Sith (the cat) on its head
+    const m = new FF7.Model(); m.app = a; m.rig = 'human';
+    const W = '#f0e8f0', dW = '#d8c8d8';
+    m.bone('hips', null, [0, 0.28, 0]);
+    m.bone('torso', 'hips', [0, 0, 0]);
+    m.bone('head', 'torso', [0, 0.55, 0.05]);
+    m.bone('armL', 'torso', [0.3, 0.3, 0.05]); m.bone('foreL', 'armL', [0, -0.12, 0]); m.bone('handL', 'foreL', [0, -0.1, 0]);
+    m.bone('armR', 'torso', [-0.3, 0.3, 0.05]); m.bone('foreR', 'armR', [0, -0.12, 0]); m.bone('handR', 'foreR', [0, -0.1, 0]);
+    m.bone('thighL', 'hips', [0.15, 0, 0]); m.bone('shinL', 'thighL', [0, -0.12, 0]); m.bone('footL', 'shinL', [0, -0.12, 0]);
+    m.bone('thighR', 'hips', [-0.15, 0, 0]); m.bone('shinR', 'thighR', [0, -0.12, 0]); m.bone('footR', 'shinR', [0, -0.12, 0]);
+    m.bone('weapon', 'handR', [0, -0.05, 0]);
+    m.attach('torso', meshOf(mb => {
+      mb.sphere(0, 0.28, 0, 0.34, 0.34, 0.3, W, 8, 6, false, (i, j) => j > 3 ? dW : W);
+      mb.box(0.12, 0.38, 0.28, 0.06, 0.04, 0.02, '#202020'); mb.box(-0.12, 0.38, 0.28, 0.06, 0.04, 0.02, '#202020');   // eyes
+      mb.spike([0.08, 0.26, 0.28], [0.2, -1, 0.3], 0.07, 0.025, 4, '#f0f0f0'); mb.spike([-0.08, 0.26, 0.28], [-0.2, -1, 0.3], 0.07, 0.025, 4, '#f0f0f0'); // fangs
+      mb.spike([0.2, 0.45, -0.25], [1, 0.5, -0.5], 0.35, 0.08, 4, '#7040a0'); mb.spike([-0.2, 0.45, -0.25], [-1, 0.5, -0.5], 0.35, 0.08, 4, '#7040a0'); // bat wings
+      mb.prism(0, 0.6, 0.05, 0.015, 0.015, 0.1, 4, '#303030');
+    }));
+    // the cat on top
+    m.attach('head', meshOf(mb => {
+      mb.sphere(0, 0.08, 0, 0.07, 0.07, 0.06, a.c1, 8, 5, true);           // cat body
+      mb.sphere(0, 0.2, 0.01, 0.07, 0.065, 0.06, a.c1, 8, 5, true);        // cat head
+      mb.box(0, 0.18, 0.055, 0.07, 0.04, 0.01, a.c2);
+      mb.spike([0.04, 0.25, 0], [0.4, 1, 0], 0.05, 0.02, 4, a.c1); mb.spike([-0.04, 0.25, 0], [-0.4, 1, 0], 0.05, 0.02, 4, a.c1);
+      mb.prism(0, 0.265, 0, 0.035, 0.04, 0.035, 5, '#f0d040');             // crown
+      mb.frustum(0, 0.02, -0.02, 0.14, 0.1, 0.08, 0.06, 0.12, a.c3);       // red cape
+      mb.box(0.03, 0.2, 0.062, 0.015, 0.015, 0.005, '#202020'); mb.box(-0.03, 0.2, 0.062, 0.015, 0.015, 0.005, '#202020');
+    }));
+    const arm = meshOf(mb => mb.limb(0.1, 0.1, 0.09, 0.09, 0.13, W));
+    const fore = meshOf(mb => mb.limb(0.09, 0.09, 0.08, 0.08, 0.1, W));
+    const hand = meshOf(mb => mb.sphere(0, -0.03, 0, 0.06, 0.05, 0.06, W, 6, 4, false));
+    const leg = meshOf(mb => mb.limb(0.12, 0.12, 0.11, 0.11, 0.12, W));
+    const foot = meshOf(mb => mb.box(0, -0.02, 0.04, 0.13, 0.05, 0.18, dW));
+    ['L', 'R'].forEach(sd => { m.attach('arm' + sd, arm); m.attach('fore' + sd, fore); m.attach('hand' + sd, hand); m.attach('thigh' + sd, leg); m.attach('shin' + sd, leg); m.attach('foot' + sd, foot); });
+    m.weaponMesh = meshOf(mb => { mb.prism(0, -0.02, 0.06, 0.02, 0.05, 0.12, 6, '#e0c040'); });
+    m.showWeapon = function (on) { m.bones.weapon.meshes = on ? [{ mesh: m.weaponMesh, m: null, opts: null }] : []; };
+    m.height = 1.1;
+    m.anims = { idle: 'idle', walk: 'walk', run: 'run', battle: 'battle', attack: 'punch', hurt: 'hurt', dead: 'dead', cast: 'cast', item: 'item', victory: 'victory', weak: 'weak', defend: 'defend' };
+    return m;
+  }
+
+  function buildMoogle(a) {
+    const m = buildCait({ c1: '#f0f0f0', c2: '#f0f0f0', c3: '#f0f0f0' });
+    m.bones.head.meshes = [{ mesh: meshOf(mb => { mb.prism(0, 0, 0, 0.012, 0.012, 0.12, 4, '#303030'); mb.sphere(0, 0.15, 0, 0.05, 0.05, 0.05, a.c2 || '#e04060', 6, 4); }), m: null, opts: null }];
+    m.scale = 0.7;
+    return m;
+  }
+
+  function buildGhost(a) {
+    const m = new FF7.Model(); m.rig = 'quad';
+    m.bone('body', null, [0, 0.4, 0]); m.bone('head', 'body', [0, 0.2, 0]); m.bone('tail', 'body', [0, 0, 0]);
+    ['legFL', 'legFR', 'legBL', 'legBR'].forEach(n => m.bone(n, 'body', [0, 0, 0]));
+    m.attach('body', meshOf(mb => { mb.sphere(0, 0.1, 0, 0.2, 0.3, 0.2, a.c1, 8, 5, true); mb.prism(0, -0.3, 0, 0.05, 0.18, 0.25, 6, a.c1); mb.box(0.07, 0.2, 0.18, 0.05, 0.08, 0.02, a.c3); mb.box(-0.07, 0.2, 0.18, 0.05, 0.08, 0.02, a.c3); }), null, { blend: 'alpha', tint: [1, 1, 1, 0.8] });
+    m.height = 0.9;
+    m.anims = { idle: 'q_idle', walk: 'q_idle', run: 'q_idle', battle: 'q_idle', attack: 'q_attack', hurt: 'q_hurt', dead: 'q_dead', cast: 'q_cast', item: 'q_cast', victory: 'q_idle', weak: 'q_idle', defend: 'q_idle' };
+    m.showWeapon = () => {};
+    return m;
+  }
+
+  // ------------------------------------------------------------------ public
+  // Models are rebuilt per instance (they hold pose state) but meshes are shared through a cache.
+  const meshCache = new Map();
+  C3.build = function (app, opts = {}) {
+    const a = resolve(app);
+    const style = opts.style || 'field';
+    const key = (typeof app === 'string' ? app : JSON.stringify(app)) + '|' + style;
+    let tpl = meshCache.get(key);
+    let m;
+    if (a.rig === 'redxiii' || a.rig === 'dog') m = buildQuad(a, style);
+    else if (a.rig === 'chocobo') m = buildChocobo(a);
+    else if (a.rig === 'caitsith') m = buildCait(a, style);
+    else if (a.rig === 'moogle') m = buildMoogle(a);
+    else if (a.rig === 'ghost') m = buildGhost(a);
+    else m = buildHuman(a, style);
+    // share GPU meshes between identical models: swap in cached meshes
+    if (tpl) {
+      m.order.forEach((b, i) => { const tb = tpl.order[i]; if (tb && tb.name === b.name && tb.meshes.length === b.meshes.length) b.meshes.forEach((mm, k) => { mm.mesh = tb.meshes[k].mesh; }); });
+      if (tpl.weaponMesh) m.weaponMesh = tpl.weaponMesh;
+    } else meshCache.set(key, m);
+    m.appKey = key;
+    m.play(m.anims.idle);
+    return m;
+  };
+})();

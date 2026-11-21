@@ -93,7 +93,7 @@
     const tag = 'DEMO' + (FF7.timeScale > 1 ? ' ' + FF7.timeScale + '×' : '');
     c.fillStyle = '#ffd860'; c.fillText(tag, 6, H - h / 2);
     const x0 = Math.max(58, 6 + c.measureText(tag).width + 12);   // (the status after the tag, however wide the speed makes it: "DEMO 32x" ran into it)
-    const keys = 'Esc: take control   `: fast-forward';
+    const keys = FF7.input.label('demo') + ': take control   ' + FF7.input.label('ff') + ': fast-forward';   // (Esc and `; the on-screen buttons on a phone)
     c.font = Rn.font(11, '600'); c.textAlign = 'right'; c.fillStyle = '#9aa4c0'; c.fillText(keys, W - 6, H - h / 2);
     const kw = c.measureText(keys).width;
     const obj = (R.activity && R.activity()) || R.objective || R.chapterTitle || '';   // a training step says so

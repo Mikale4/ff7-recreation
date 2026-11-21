@@ -15,6 +15,8 @@
 //   ff               : ` (backquote)            |              fast-forward
 // (F2, the debug menu, is fixed.) A key or pad button belongs to one button at a time: binding it elsewhere moves it
 // (the other button gets this slot's old key back, so nothing is left without one).
+// On a phone or tablet the on-screen controls (js/core/touch.js) hold the same buttons through I.touch(); the hints
+// then name the on-screen buttons (Circle, Cross, Triangle...), since there is no key to name.
 (function () {
   const BUTTONS = ['up', 'down', 'left', 'right', 'ok', 'cancel', 'menu', 'square', 'l1', 'r1', 'l2', 'r2', 'start', 'select', 'run', 'debug', 'demo', 'flee', 'auto', 'ff'];
   // the rebindable buttons, in the Controls tab's order, with what they do
@@ -73,6 +75,16 @@
   let capture = null;      // rebinding: { fn, padHeld } - the next key or pad button goes to fn, and nowhere else
   let padIgnore = {};      // pad buttons still held from a capture (ignored until let go)
   let charBtn = {}, charBtnNow = {};   // buttons pressed this frame by a key that also typed a character (name entry)
+  const touchDown = {};    // buttons held on the touch screen (js/core/touch.js): how many on-screen controls hold each
+  const touchLatch = {};   // touched since the last update (a tap shorter than a frame still counts)
+  let device = null;       // the kind of input used last: 'key' | 'pad' | 'touch' (the hints name its buttons)
+  function setDevice(d) { if (device === d) return; device = d; if (FF7.touch && FF7.touch.refresh) FF7.touch.refresh(); }
+  // what the hints call each button when the touch controls are the input (the on-screen buttons' own names)
+  const TOUCH_NAMES = {
+    up: 'Up', down: 'Down', left: 'Left', right: 'Right', ok: 'Circle', cancel: 'Cross', menu: 'Triangle', square: 'Square',
+    l1: 'L1', r1: 'R1', l2: 'L2', r2: 'R2', start: 'Start', select: 'Select', run: 'Run', flee: 'L1+R1', auto: 'Select',
+    ff: '▶▶', demo: 'Demo',
+  };
 
   window.addEventListener('keydown', (e) => {
     const code = ALIAS[e.code] || e.code;
@@ -87,6 +99,7 @@
     if (b) { e.preventDefault(); if (!rawKeys[e.code]) { rawKeys[e.code] = b; keyDown[b] = (keyDown[b] || 0) + 1; latched[b] = true; if (e.key && e.key.length === 1) charBtn[b] = true; } }
     if (e.key && e.key.length === 1) typed.push(e.key);
     else if (e.key === 'Backspace') typed.push('\b');
+    setDevice('key');
     FF7.audio && FF7.audio.unlock();
   });
   window.addEventListener('keyup', (e) => {
@@ -107,6 +120,7 @@
       if (ax < -0.5) out.left = true; if (ax > 0.5) out.right = true;
       if (ay < -0.5) out.up = true; if (ay > 0.5) out.down = true;
     }
+    for (const b in out) { setDevice('pad'); break; }
     return out;
   }
 
@@ -149,8 +163,8 @@
       anyPressed = false;
       for (const b of BUTTONS) {
         const s = state[b];
-        const now = !capture && (((!locked || b === 'demo' || b === 'ff') && ((keyDown[b] || 0) > 0 || !!latched[b])) || !!padNow[b] || !!virt[b]);
-        latched[b] = false;
+        const now = !capture && (((!locked || b === 'demo' || b === 'ff') && ((keyDown[b] || 0) > 0 || !!latched[b] || (touchDown[b] || 0) > 0 || !!touchLatch[b])) || !!padNow[b] || !!virt[b]);
+        latched[b] = false; touchLatch[b] = false;
         s.pressed = now && !s.held;
         s.released = !now && s.held;
         s.held = now;
@@ -192,13 +206,25 @@
     keysOf(b) { return (keys[b] || [null, null]).slice(); },
     padOf(b) { return pad[b] != null ? pad[b] : null; },
     keyName, padName,
-    // what to show for a button in a hint: its first key ('Tab'), or its pad button when a gamepad is connected
+    // ---- touch (js/core/touch.js): an on-screen control holds (on) or lets go of (off) button b
+    touch(b, on) {
+      if (on) { touchDown[b] = (touchDown[b] || 0) + 1; touchLatch[b] = true; setDevice('touch'); }
+      else touchDown[b] = Math.max(0, (touchDown[b] || 0) - 1);
+    },
+    touchRelease() { for (const b in touchDown) touchDown[b] = 0; },
+    // the kind of input used last ('key', 'pad', 'touch' or null), and setting it (a touch anywhere on the screen)
+    device() { return device; }, setDevice,
+    // whether the hints name the on-screen buttons: touch was the last input (or nothing yet, with the controls shown)
+    touchHints() { return device === 'touch' || (device == null && !!(FF7.touch && FF7.touch.shown && FF7.touch.shown())); },
+    // what to show for a button in a hint: its first key ('Tab'), or its pad button when a gamepad is connected, or
+    // the on-screen button's name when the touch controls are the input
     label(b, o = {}) {
+      if (!o.keys && this.touchHints()) return TOUCH_NAMES[b] || b;
       if (!o.keys && pad[b] != null && pads().length) return padName(pad[b]);
       const k = (keys[b] || []).find(Boolean);
       return k ? keyName(k) : pad[b] != null ? padName(pad[b]) : '—';
     },
-    keyLabel(b) { const k = (keys[b] || []).find(Boolean); return k ? keyName(k) : ''; },
+    keyLabel(b) { if (this.touchHints()) return ''; const k = (keys[b] || []).find(Boolean); return k ? keyName(k) : ''; },   // (none on touch: the glyph is the on-screen button)
     // the next key or pad button (not F2) goes to fn({ key } | { pad }) instead of the game
     capture(fn) { capture = { fn, padHeld: padButtons() }; for (const b in keyDown) keyDown[b] = 0; for (const k in rawKeys) rawKeys[k] = false; },
     cancelCapture() { capture = null; },

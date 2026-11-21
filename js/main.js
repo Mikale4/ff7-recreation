@@ -5,6 +5,7 @@
 
   FF7.boot = function () {
     FF7.render.init();
+    if (FF7.touch) FF7.touch.init();   // (the on-screen controls on a phone or tablet)
     if (!FF7.GL.init()) {
       const c = FF7.render.ctx;
       FF7.render.clear();
@@ -78,6 +79,7 @@
         if (k > 1 && performance.now() - t0 > 24) { acc = 0; break; }
       }
       if (k > 1 && n >= 5 * k) acc = 0;
+      if (FF7.touch) FF7.touch.frame();   // (the touch controls: shown or not, and their Demo / fast-forward buttons)
       // (a drawing error is logged once and the game goes on: one bad frame mustn't stop the loop for good)
       try {
         FF7.sceneMgr.render();

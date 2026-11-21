@@ -21,6 +21,7 @@
     hints: true,               // the main menu's next objective and the treasure left on this map
     limitProgress: true,       // the Limit screen: how close each unlearned limit is
     senseDetails: true,        // Sense also shows the enemy's weaknesses, absorptions and immunities
+    touchControls: 'auto',     // the on-screen pad (js/core/touch.js): 'auto' (on a touch screen) | 'on' | 'off'
     chocoboDetails: false,     // the stall cards show each chocobo's hidden limits and what it needs next (off: FF7's own cards)
     avalancheScenes: true,     // Jessie in the party through Reactor 1; the Sector 7 pillar's last stand (Biggs, Wedge, Jessie)
     turksJoin: true,           // Disc 3: Reno, Rude and Elena can join (only if the party beat them in the Sector 8 underground)

@@ -243,8 +243,11 @@
         ];
         case 'Field': return [
           ['Field Message Speed', bar(c.fieldMsgSpeed), (d) => { c.fieldMsgSpeed = U.clamp(c.fieldMsgSpeed + d * 0.1, 0, 1); }, 'How fast the text of the dialogue boxes comes up.'],
-          ['Run', c.alwaysRun ? 'Always (hold ' + I.label('run') + ' to walk)' : 'Hold ' + I.label('run'), () => { c.alwaysRun = !c.alwaysRun; },
-            'Always: run everywhere, hold ' + I.label('run') + ' to walk. Hold ' + I.label('run') + ': walk, hold it to run.'],
+          I.touchHints()   // (the on-screen Run button is a switch: js/core/touch.js)
+            ? ['Run', c.alwaysRun ? 'Always (Walk button walks)' : 'Run button', () => { c.alwaysRun = !c.alwaysRun; },
+              'Always: run everywhere; the on-screen WALK button turns walking on and off. Run button: the RUN button turns running on and off.']
+            : ['Run', c.alwaysRun ? 'Always (hold ' + I.label('run') + ' to walk)' : 'Hold ' + I.label('run'), () => { c.alwaysRun = !c.alwaysRun; },
+              'Always: run everywhere, hold ' + I.label('run') + ' to walk. Hold ' + I.label('run') + ': walk, hold it to run.'],
           ['Exit Markers', c.exitMarkers ? 'On' : 'Off', () => { c.exitMarkers = !c.exitMarkers; }, "Markers over each area's exits."],
           toggle('Hints (menu)', 'hints', 'The main menu shows the next objective and the treasure still in the area.'),
           toggle('Chocobo Details', 'chocoboDetails', "Chocobo cards show each bird's hidden limits and what it needs next."),
@@ -256,6 +259,11 @@
             'The color of the menu windows.'],
           toggle('Fast-Forward (' + I.label('ff') + ')', 'fastForward', I.label('ff') + ' cycles the game speed: 1×, 2×, 4×, 8×.'),
           toggle('Autosave', 'autosave', 'Saves to a file of its own on each new area. The Load screen lists it first.'),
+          // (js/core/touch.js: the on-screen pad)
+          // (Off only from a keyboard or a pad: picked by touch, it would leave the player with no controls at all)
+          ['Touch Controls', FF7.touch ? FF7.touch.modeName(c.touchControls) : 'Auto', (d) => { const o = I.device() === 'touch' ? ['auto', 'on'] : ['auto', 'on', 'off'], i = Math.max(0, o.indexOf(c.touchControls)); c.touchControls = o[(i + d + o.length) % o.length]; },
+            I.device() === 'touch' ? 'The on-screen pad. Auto: shown on a touch screen, hidden while you use keys or a gamepad. (Off: from a keyboard or gamepad.)'
+              : 'The on-screen pad for phones and tablets. Auto: shown on a touch screen, hidden while you use keys or a gamepad.'],
         ];
         case 'Extras': return [   // (story scenes that are not in the PS1 game)
           toggle('AVALANCHE Scenes', 'avalancheScenes', 'Play alongside Jessie, Biggs and Wedge in two early scenes.'),   // (js/maps/c1/reactor1.js, c3/part3.js)

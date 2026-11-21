@@ -6,7 +6,8 @@ FF7's own formulas, materia, limits, the world map, vehicles and minigames. Dial
 not the original script. This project is not affiliated with Square Enix.
 
 ## Play online
-**https://mikale4.github.io/ff7-recreation/** (any browser with WebGL, phones included).
+**https://mikale4.github.io/ff7-recreation/** (any browser with WebGL, phones and tablets included: on a touch
+screen the game shows an on-screen PlayStation pad, see [Touch controls](#touch-controls-phones-and-tablets)).
 
 The online copy holds only this recreation's own work: the code, the 3D models and the portraits rendered from them.
 It has none of the original game's music, sound effects or movies; the story's movies play as their real-time
@@ -52,7 +53,27 @@ gamepad button; OK on a cell waits for the key (5 seconds), Square clears it, an
 key taken from another button moves over (that button gets the old key back). The bindings are kept per browser, for
 every save file, and the game's hints (movie skip, minigame help, the Save screen) name your keys.
 
-The Config screen is in tabs: **Battle**, **Field**, **System** (volumes, window color, fast-forward, autosave),
+## Touch controls (phones and tablets)
+On a touch screen the game draws a PlayStation pad around the picture: under it when the phone is upright, in two
+columns beside it when the phone is on its side (on a very small phone held sideways, over the picture, faint).
+
+| On screen | Use |
+|---|---|
+| D-pad | Walk (8 directions; slide your thumb to turn); move cursors |
+| ○ ✕ △ □ | The PlayStation buttons, as in the keyboard table above (a thumb can roll from one to the next) |
+| L1 / R1, L2 / R2 | As on the pad; hold L1 and R1 together to run from a battle |
+| SELECT / START | As on the pad; SELECT is also Auto battle |
+| RUN | A switch: tap to run, tap again to walk (WALK when Config > Field > Run is Always) |
+| ▶▶ | Fast-forward (1× / 2× / 4× / 8×); in the Demo, the Demo's own speeds |
+| DEMO | Demo mode on / off (shown in a game, not on the title screen) |
+| Corners | Full screen, where the browser allows it (Android, tablets; not an iPhone's Safari) |
+
+While touch is what you use, the hints name the on-screen buttons (Circle, Cross, Triangle...). **Config > System >
+Touch Controls**: Auto (the default: shown on a touch screen; a key or a gamepad button hides the pad until the next
+touch, so a phone with a Bluetooth controller plays without it), On, or Off (Off only from a keyboard or gamepad, so a
+touch screen can't lose its controls).
+
+The Config screen is in tabs: **Battle**, **Field**, **System** (volumes, window color, fast-forward, autosave, touch controls),
 **Extras** (the story extras below) and **Controls**. It is on the title screen too, and the settings are shared by
 every save file (kept per browser): new games start with them and loading a file applies them. L1 / R1 (A / S) switch tabs, or Left / Right on the tab
 bar; a line at the bottom explains the option under the cursor.

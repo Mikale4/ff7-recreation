@@ -12,10 +12,14 @@
     window.addEventListener('resize', R.resize);
   };
 
-  // Keep 4:3, fit the window, render at device resolution for crisp text.
+  // Keep 4:3, fit the window, render at device resolution for crisp text. The touch controls (js/core/touch.js) may
+  // keep part of the window for themselves (under the picture, or beside it): the picture fits the rest.
   R.resize = function () {
     const ww = window.innerWidth, wh = window.innerHeight;
-    const s = Math.min(ww / W, wh / H);
+    const a = (FF7.touch && FF7.touch.area && FF7.touch.area(ww, wh)) || { x: 0, y: 0, w: ww, h: wh };
+    const wrap = R.canvas.parentNode;
+    if (wrap && wrap.style) Object.assign(wrap.style, { left: a.x + 'px', top: a.y + 'px', width: a.w + 'px', height: a.h + 'px', right: 'auto', bottom: 'auto' });
+    const s = Math.min(a.w / W, a.h / H);
     const cw = Math.floor(W * s), ch = Math.floor(H * s);
     const dpr = window.devicePixelRatio || 1;
     R.canvas.style.width = cw + 'px';

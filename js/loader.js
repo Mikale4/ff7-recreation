@@ -6,6 +6,7 @@
     'js/core/diskstore.js',   // (first: the saves on disk are put back before anything reads them)
     'js/core/util.js',
     'js/core/input.js',
+    'js/core/touch.js',       // the on-screen controls for phones and tablets (they hold the buttons of input.js)
     'js/core/audio.js',
     'js/core/render.js',
     'js/core/coroutine.js',

@@ -1,0 +1,34 @@
+{
+  "_comment": "logical sound -> file in sfx/web/. Delete a line to fall back to the built-in synth. Re-run: node tools/convert_sfx.mjs",
+
+  "cursor":    "Cursor - Move.mp3",
+  "confirm":   "Cursor - Accept.mp3",
+  "cancel":    "Cursor - Cancel.mp3",
+  "error":     "Cursor - Buzzer.mp3",
+  "equip":     "Cursor - Equip.mp3",
+
+  "hit":       "hit.mp3",
+  "crit":      "hit.mp3",
+  "death":     "Kill2.mp3",
+  "bosskill":  "Boss Kill.mp3",
+
+  "cast":      "Cast Magic.mp3",
+  "fire":      "Fire.mp3",
+  "ice":       "ice.mp3",
+  "bolt":      "magic.mp3",
+  "heal":      "Cure2.mp3",
+  "summon":    "Cast Magic.mp3",
+  "limit":     "Limit2.mp3",
+  "howl":      "Red XIII Howl.mp3",
+  "shot":      "Gun Fire.mp3",
+
+  "encounter": "Battle swirl.mp3",
+  "item":      "Item.mp3",
+  "chest":     "Chest.mp3",
+  "found":     "Found item.mp3",
+  "purchase":  "Purchase.mp3",
+  "save":      "Save Point.mp3",
+  "door":      "Door.mp3",
+  "gate":      "Elevator.mp3",
+  "levelup":   "Cursor - Learn Limit.mp3"
+}

@@ -1,0 +1,407 @@
+{
+ "Aeris Limit.mp3": {
+  "bytes": 71703,
+  "rate": 44100,
+  "seconds": 5.99
+ },
+ "Alarm.mp3": {
+  "bytes": 20156,
+  "rate": 44100,
+  "seconds": 1.016
+ },
+ "Alarm2.mp3": {
+  "bytes": 212019,
+  "rate": 44100,
+  "seconds": 20.36
+ },
+ "Alarm3.mp3": {
+  "bytes": 5965,
+  "rate": 44100,
+  "seconds": 0.48
+ },
+ "Battle swirl.mp3": {
+  "bytes": 22497,
+  "rate": 44100,
+  "seconds": 2.186
+ },
+ "Beeeeeeeep.mp3": {
+  "bytes": 27037,
+  "rate": 44100,
+  "seconds": 2.124
+ },
+ "Boss Kill.mp3": {
+  "bytes": 42923,
+  "rate": 44100,
+  "seconds": 4.142
+ },
+ "Call Tone.mp3": {
+  "bytes": 22476,
+  "rate": 44100,
+  "seconds": 2.021
+ },
+ "Cast Magic.mp3": {
+  "bytes": 21569,
+  "rate": 44100,
+  "seconds": 2.079
+ },
+ "Chest.mp3": {
+  "bytes": 4398,
+  "rate": 44100,
+  "seconds": 0.349
+ },
+ "Ching.mp3": {
+  "bytes": 8939,
+  "rate": 44100,
+  "seconds": 0.586
+ },
+ "Ching2.mp3": {
+  "bytes": 7270,
+  "rate": 44100,
+  "seconds": 0.495
+ },
+ "Ching3.mp3": {
+  "bytes": 4610,
+  "rate": 44100,
+  "seconds": 0.321
+ },
+ "Ching4.mp3": {
+  "bytes": 5001,
+  "rate": 44100,
+  "seconds": 0.312
+ },
+ "Chocobo Kweh.mp3": {
+  "bytes": 7714,
+  "rate": 44100,
+  "seconds": 0.601
+ },
+ "Chocobo tune.mp3": {
+  "bytes": 19487,
+  "rate": 44100,
+  "seconds": 1.76
+ },
+ "Chocobo.mp3": {
+  "bytes": 8573,
+  "rate": 44100,
+  "seconds": 0.672
+ },
+ "Chocobo2.mp3": {
+  "bytes": 9045,
+  "rate": 44100,
+  "seconds": 0.677
+ },
+ "Cure2.mp3": {
+  "bytes": 29963,
+  "rate": 44100,
+  "seconds": 2.407
+ },
+ "Cure3.mp3": {
+  "bytes": 39451,
+  "rate": 44100,
+  "seconds": 2.525
+ },
+ "Cursor - Accept.mp3": {
+  "bytes": 6696,
+  "rate": 44100,
+  "seconds": 0.502
+ },
+ "Cursor - Buzzer.mp3": {
+  "bytes": 5756,
+  "rate": 44100,
+  "seconds": 0.353
+ },
+ "Cursor - Cancel.mp3": {
+  "bytes": 1896,
+  "rate": 44100,
+  "seconds": 0.062
+ },
+ "Cursor - Equip.mp3": {
+  "bytes": 5340,
+  "rate": 44100,
+  "seconds": 0.38
+ },
+ "Cursor - Learn Limit.mp3": {
+  "bytes": 6383,
+  "rate": 44100,
+  "seconds": 0.49
+ },
+ "Cursor - Learn unknown.mp3": {
+  "bytes": 4087,
+  "rate": 44100,
+  "seconds": 0.252
+ },
+ "Cursor - Move.mp3": {
+  "bytes": 2627,
+  "rate": 44100,
+  "seconds": 0.129
+ },
+ "Cursor - Set.mp3": {
+  "bytes": 5810,
+  "rate": 44100,
+  "seconds": 0.386
+ },
+ "Cursor - Use.mp3": {
+  "bytes": 8834,
+  "rate": 44100,
+  "seconds": 0.638
+ },
+ "Damaged Typing.mp3": {
+  "bytes": 22961,
+  "rate": 44100,
+  "seconds": 1.939
+ },
+ "Door 4.mp3": {
+  "bytes": 10530,
+  "rate": 44100,
+  "seconds": 0.954
+ },
+ "Door Shinra.mp3": {
+  "bytes": 3198,
+  "rate": 44100,
+  "seconds": 0.243
+ },
+ "Door.mp3": {
+  "bytes": 4192,
+  "rate": 44100,
+  "seconds": 0.298
+ },
+ "Drum roll.mp3": {
+  "bytes": 47376,
+  "rate": 44100,
+  "seconds": 4.884
+ },
+ "Elevator.mp3": {
+  "bytes": 7740,
+  "rate": 44100,
+  "seconds": 0.592
+ },
+ "Falling.mp3": {
+  "bytes": 33563,
+  "rate": 44100,
+  "seconds": 2.807
+ },
+ "Fire.mp3": {
+  "bytes": 96112,
+  "rate": 44100,
+  "seconds": 5.771
+ },
+ "Fire2.mp3": {
+  "bytes": 64008,
+  "rate": 44100,
+  "seconds": 3.46
+ },
+ "Found item.mp3": {
+  "bytes": 6173,
+  "rate": 44100,
+  "seconds": 0.361
+ },
+ "Gun Fire.mp3": {
+  "bytes": 25338,
+  "rate": 44100,
+  "seconds": 1.893
+ },
+ "Gun Fire2.mp3": {
+  "bytes": 25338,
+  "rate": 44100,
+  "seconds": 1.893
+ },
+ "Gun Fire3.mp3": {
+  "bytes": 8100,
+  "rate": 44100,
+  "seconds": 0.596
+ },
+ "Heart Beat.mp3": {
+  "bytes": 9417,
+  "rate": 44100,
+  "seconds": 1.431
+ },
+ "Helicopter.mp3": {
+  "bytes": 18330,
+  "rate": 44100,
+  "seconds": 0.923
+ },
+ "hit.mp3": {
+  "bytes": 11131,
+  "rate": 22050,
+  "seconds": 0.879
+ },
+ "Hop.mp3": {
+  "bytes": 3668,
+  "rate": 44100,
+  "seconds": 0.273
+ },
+ "ice.mp3": {
+  "bytes": 18588,
+  "rate": 22050,
+  "seconds": 1.663
+ },
+ "INSTR2_0000.mp3": {
+  "bytes": 27062,
+  "rate": 22050,
+  "seconds": 4.509
+ },
+ "INSTR2_0001.mp3": {
+  "bytes": 11591,
+  "rate": 22050,
+  "seconds": 1.859
+ },
+ "INSTR2_0002.mp3": {
+  "bytes": 13723,
+  "rate": 22050,
+  "seconds": 2.234
+ },
+ "INSTR2_0003.mp3": {
+  "bytes": 12762,
+  "rate": 22050,
+  "seconds": 2.1
+ },
+ "INSTR2_0004.mp3": {
+  "bytes": 28230,
+  "rate": 22050,
+  "seconds": 4.687
+ },
+ "INSTR2_0005.mp3": {
+  "bytes": 27815,
+  "rate": 22050,
+  "seconds": 4.54
+ },
+ "Item.mp3": {
+  "bytes": 4504,
+  "rate": 44100,
+  "seconds": 0.288
+ },
+ "Jump.mp3": {
+  "bytes": 3409,
+  "rate": 44100,
+  "seconds": 0.22
+ },
+ "Kill2.mp3": {
+  "bytes": 14260,
+  "rate": 44100,
+  "seconds": 1.348
+ },
+ "Limit2.mp3": {
+  "bytes": 16553,
+  "rate": 44100,
+  "seconds": 1.549
+ },
+ "magic.mp3": {
+  "bytes": 23004,
+  "rate": 22050,
+  "seconds": 2.35
+ },
+ "PHS Ring.mp3": {
+  "bytes": 9929,
+  "rate": 44100,
+  "seconds": 0.712
+ },
+ "Piano Chord 1.mp3": {
+  "bytes": 17259,
+  "rate": 44100,
+  "seconds": 1.691
+ },
+ "Piano Chord 2.mp3": {
+  "bytes": 17285,
+  "rate": 44100,
+  "seconds": 1.692
+ },
+ "Piano Chord 3.mp3": {
+  "bytes": 17994,
+  "rate": 44100,
+  "seconds": 1.694
+ },
+ "Piano Chord 4.mp3": {
+  "bytes": 22325,
+  "rate": 44100,
+  "seconds": 2.235
+ },
+ "Piano1.mp3": {
+  "bytes": 16704,
+  "rate": 44100,
+  "seconds": 1.684
+ },
+ "Piano2.mp3": {
+  "bytes": 16940,
+  "rate": 44100,
+  "seconds": 1.688
+ },
+ "Piano3.mp3": {
+  "bytes": 17098,
+  "rate": 44100,
+  "seconds": 1.688
+ },
+ "Piano4.mp3": {
+  "bytes": 17127,
+  "rate": 44100,
+  "seconds": 1.69
+ },
+ "Piano5.mp3": {
+  "bytes": 17259,
+  "rate": 44100,
+  "seconds": 1.681
+ },
+ "Piano6.mp3": {
+  "bytes": 17520,
+  "rate": 44100,
+  "seconds": 1.686
+ },
+ "Piano7.mp3": {
+  "bytes": 17812,
+  "rate": 44100,
+  "seconds": 1.689
+ },
+ "Piano8.mp3": {
+  "bytes": 18071,
+  "rate": 44100,
+  "seconds": 1.698
+ },
+ "Purchase.mp3": {
+  "bytes": 11130,
+  "rate": 44100,
+  "seconds": 0.864
+ },
+ "Red XIII Howl.mp3": {
+  "bytes": 37652,
+  "rate": 44100,
+  "seconds": 4.047
+ },
+ "Run to Attack.mp3": {
+  "bytes": 5965,
+  "rate": 44100,
+  "seconds": 0.45
+ },
+ "Run.mp3": {
+  "bytes": 13215,
+  "rate": 44100,
+  "seconds": 0.81
+ },
+ "Save Point.mp3": {
+  "bytes": 8730,
+  "rate": 44100,
+  "seconds": 0.702
+ },
+ "Scan.mp3": {
+  "bytes": 32517,
+  "rate": 44100,
+  "seconds": 1.939
+ },
+ "Searching movements.mp3": {
+  "bytes": 8984,
+  "rate": 44100,
+  "seconds": 1.031
+ },
+ "Slots.mp3": {
+  "bytes": 9069,
+  "rate": 44100,
+  "seconds": 0.693
+ },
+ "Train horn.mp3": {
+  "bytes": 22261,
+  "rate": 44100,
+  "seconds": 2.245
+ },
+ "Train.mp3": {
+  "bytes": 14205,
+  "rate": 44100,
+  "seconds": 1.062
+ }
+}

@@ -1,0 +1,30 @@
+{
+  "_comment": "Track name -> file in bgm/. Delete a line to fall back to the built-in synth arrangement.",
+
+  "title":      "01-The Prelude.mp3",
+
+  "bombing":    "03-Bombing Mission.mp3",
+  "reactor":    "04-Mako Reactor.mp3",
+  "slums":      "15-Underneath the Rotting Pizza.mp3",
+  "tifa":       "06-Tifa's Theme.mp3",
+  "anxious":    "05-Anxious Heart.mp3",
+  "church":     "13-Flowers Blooming in the Church.mp3",
+  "hurry":      "08-Hurry!.mp3",
+  "shinra":     "10-Shinra Corporation.mp3",
+  "infiltrate": "20-Infiltrating Shinra Tower.mp3",
+  "whoareyou":  "18-Who Are You.mp3",
+  "crater":     "67-The Great Northern Cave.mp3",
+  "planet":     "64-You Can Hear the Cry of the Planet.mp3",
+
+  "battle":     "11-Fighting.mp3",
+  "boss":       "21-Still More Fighting.mp3",
+  "jenova":     "87-One-Winged Angel.mp3",
+  "victory":    "12-Fanfare.mp3",
+  "gameover":   "39-Continue.mp3",
+
+  "field":      "26-Ahead on Our Way.mp3",
+  "town":       "74-Parochial Town.mp3",
+  "danger":     "09-Lurking in the Darkness.mp3",
+  "sorrow":     "65-Aeris' Theme.mp3",
+  "ending":     "89-Staff Roll.mp3"
+}
